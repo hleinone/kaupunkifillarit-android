@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Base.AppTheme" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="android:colorPrimaryDark">@color/primary_dark</item>
+        <item name="android:colorAccent">@color/primary</item>
+        <item name="android:colorControlHighlight">@color/primary_dark</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+
+    <style name="Base.InfoTitle" parent="android:TextAppearance.Material.Headline">
+    </style>
+
+    <style name="Base.InfoContent" parent="android:TextAppearance.Material.Small">
+    </style>
+
+    <style name="AppTheme.Button" parent="android:Widget.Material.Button">
+    </style>
+
+    <style name="AppTheme.AlertDialog" parent="android:Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorAccent">@color/primary_dark</item>
+    </style>
+
+</resources>

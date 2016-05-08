@@ -1,0 +1,6 @@
+/build
+crashlytics.properties
+gradle.properties
+/src/main/assets/crashlytics-build.properties
+/src/debug/res/values/google_maps_api.xml
+/src/main/res/values/com_crashlytics_export_strings.xml
