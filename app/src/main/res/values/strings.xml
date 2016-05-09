@@ -2,15 +2,15 @@
 <resources>
     <string name="app_name">Kaupunkifillarit</string>
     <string name="info_title">Kaupunki-\nfillarit.fi</string>
-    <string name="info_content">Polkupyöräily lisää kaupunkilaisten onnea. Innostuimme <a href="http://reaktor.fi/careers/?utm_source=kaupunkifillarit&amp;utm_medium=referral&amp;utm_campaign=kaupunkifillarit_2016">Reaktorilla</a> maan mainoista HSL:n kaupunkipyöristä.
+    <string name="info_content">Polkupyöräily lisää kaupunkilaisten onnea. Innostuimme <a href="http://reaktor.fi/careers/?utm_source=kaupunkifillarit&amp;utm_medium=referral&amp;utm_campaign=kaupunkifillarit_2016">Reaktorilla</a> maan mainioista HSL:n kaupunkipyöristä.
         \n
-        \nKaupunkifillareiden ainoa ongelma on niiden suosio. Siispä me, <a href="https://twitter.com/sampsakuronen">Sampsa Kuronen</a>, Antero Päärni, Lauri Piispanen ja <a href="https://twitter.com/hleinone">Hannu Leinonen</a>, päätimme ratkaista tämän ongelman elegantisti vapaa-ajallamme.
+        \nKaupunkifillareiden ainoa ongelma on niiden kova suosio. Siispä me kaupunkipyöräilijät, <a href="https://twitter.com/sampsakuronen">Sampsa Kuronen</a>, <a href="https://twitter.com/albrto">Antero Päärni</a>, <a href="https://twitter.com/lauripiispanen">Lauri Piispanen</a> ja <a href="https://twitter.com/hleinone">Hannu Leinonen</a>, päätimme vapaa-ajallamme avittaa muita kaupunkilaisia.
         \n
-        \nOnnellisia pyörämatkoja!
+        \nPyöriä käyttämään pääsee tosi helposti: <a href="https://www.hsl.fi/kaupunkipy%C3%B6r%C3%A4t">hsl.fi/kaupunkipyörät</a>
         \n
-        \n<a href="https://www.dropbox.com/sh/ni5lq7nu0waqprs/AAD5hdNUydglidjCfhM27zyDa?dl=0">Lehdistömatskut täällä</a>.
+        \n<a href="https://www.dropbox.com/sh/ni5lq7nu0waqprs/AAD5hdNUydglidjCfhM27zyDa?dl=0">Press kit löytyy täältä</a>.
         \n
-        \nTiedot ovat HSL:n tarjoamaa <a href="http://www.hri.fi/fi/mita-on-avoin-data/">avointa dataa</a>.</string>
+        \nTiedot ovat HSL:n tarjoamaa avointa dataa.</string>
     <string name="close">Sulje</string>
     <string name="rating_request_title">Pidätkö Kaupunkifillarit.fi-sovelluksesta?</string>
     <string name="rating_request_message">Arvostamme palautetta, joten toivoisimmekin sinulta arvostelua Play-kauppaan.</string>
