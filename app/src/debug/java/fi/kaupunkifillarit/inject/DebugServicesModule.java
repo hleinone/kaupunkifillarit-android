@@ -34,7 +34,6 @@ public class DebugServicesModule {
     Tracker provideTracker() {
         GoogleAnalytics analytics = GoogleAnalytics.getInstance(application);
         analytics.setDryRun(true);
-        analytics.getLogger().setLogLevel(Logger.LogLevel.VERBOSE);
         return analytics.newTracker(R.xml.tracker);
     }
 

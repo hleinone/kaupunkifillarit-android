@@ -2,5 +2,7 @@
 crashlytics.properties
 gradle.properties
 /src/main/assets/crashlytics-build.properties
+/src/debug/google-services.json
 /src/debug/res/values/google_maps_api.xml
+/src/release/google-services.json
 /src/main/res/values/com_crashlytics_export_strings.xml

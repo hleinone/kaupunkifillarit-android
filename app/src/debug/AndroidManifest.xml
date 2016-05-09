@@ -5,6 +5,6 @@
 
     <application
         tools:replace="android:name"
-        android:name=".DebugKaupunkifillaritApplication" />
+        android:name="fi.kaupunkifillarit.DebugKaupunkifillaritApplication" />
 
 </manifest>
