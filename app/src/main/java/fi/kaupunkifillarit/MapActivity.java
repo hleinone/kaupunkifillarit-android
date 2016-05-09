@@ -85,7 +85,8 @@ public class MapActivity extends BaseActivity {
     private static final String FIRST_RUN = "first_run";
     private static final LatLng HELSINKI = new LatLng(60.173324, 24.9410248);
     private static final float DEFAULT_ZOOM_LEVEL = 15;
-    private static final MapLocation DEFAULT_MAP_LOCATION = new MapLocation(HELSINKI.latitude, HELSINKI.longitude, DEFAULT_ZOOM_LEVEL, 0);
+    private static final MapLocation DEFAULT_MAP_LOCATION = new MapLocation(
+            HELSINKI.latitude, HELSINKI.longitude, DEFAULT_ZOOM_LEVEL, 0, 0);
     @IdRes
     public static final int MY_LOCATION_BUTTON_ID = 0x2;
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 1;
@@ -127,7 +128,8 @@ public class MapActivity extends BaseActivity {
             Timber.e(e, "Location fetching failed");
             MapActivity.this.mapLocation = mapLocation;
             if (!mapMoved && googleMap.isSome()) {
-                googleMap.some().animateCamera(CameraUpdateFactory.newLatLngZoom(HELSINKI, DEFAULT_ZOOM_LEVEL));
+                googleMap.some().animateCamera(
+                        CameraUpdateFactory.newLatLngZoom(HELSINKI, DEFAULT_ZOOM_LEVEL));
             }
         }
 
@@ -135,8 +137,14 @@ public class MapActivity extends BaseActivity {
         public void onNext(MapLocation mapLocation) {
             if (MapActivity.this.mapLocation.isNone()) {
                 MapActivity.this.mapLocation = Option.some(mapLocation);
-                if (!mapMoved && googleMap.isSome()) {
-                    googleMap.some().animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mapLocation.latitude, mapLocation.longitude), mapLocation.zoom));
+                if (!mapMoved && googleMap.isSome() && mapLocation.isWithinDesiredMapBounds()) {
+                    googleMap.some().animateCamera(CameraUpdateFactory.
+                            newCameraPosition(new CameraPosition.Builder()
+                                    .target(new LatLng(mapLocation.latitude, mapLocation.longitude))
+                                    .zoom(mapLocation.zoom)
+                                    .bearing(mapLocation.bearing)
+                                    .tilt(mapLocation.tilt)
+                                    .build()));
                 }
             }
         }
@@ -173,6 +181,7 @@ public class MapActivity extends BaseActivity {
 
     private Subscription closeInfoDrawerClickSubscription;
     private Subscription shareClickSubscription;
+    private Subscription permissionGrantedSubsription;
 
     @BindView(R.id.content)
     RelativeLayout content;
@@ -272,6 +281,17 @@ public class MapActivity extends BaseActivity {
                     //noinspection MissingPermission
                     googleMap.some().setMyLocationEnabled(true);
                     tracker.send(LocationPermissionsEvents.granted());
+                    permissionGrantedSubsription = LastKnownLocationObservable.createObservable(this)
+                            .map(location -> new MapLocation(location.getLatitude(), location.getLongitude(), DEFAULT_ZOOM_LEVEL, 0, 0))
+                            .subscribe(onNext -> {
+                                googleMap.some().animateCamera(CameraUpdateFactory.
+                                        newCameraPosition(new CameraPosition.Builder()
+                                                .target(new LatLng(onNext.latitude, onNext.longitude))
+                                                .zoom(onNext.zoom)
+                                                .bearing(onNext.bearing)
+                                                .tilt(onNext.tilt)
+                                                .build()));
+                            });
                 } else {
                     tracker.send(LocationPermissionsEvents.denied());
                 }
@@ -315,7 +335,7 @@ public class MapActivity extends BaseActivity {
         lastLocationSubscription = Observable.concat(
                 JacksonSharedPreferenceObservable.createObservable(objectMapper, sharedPreferences, LAST_MAP_LOCATION, MapLocation.class),
                 LastKnownLocationObservable.createObservable(this)
-                        .map(location -> new MapLocation(location.getLatitude(), location.getLongitude(), DEFAULT_ZOOM_LEVEL, 0)),
+                        .map(location -> new MapLocation(location.getLatitude(), location.getLongitude(), DEFAULT_ZOOM_LEVEL, 0, 0)),
                 Observable.just(DEFAULT_MAP_LOCATION).delay(200, TimeUnit.MILLISECONDS))
                 .take(1)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -358,6 +378,9 @@ public class MapActivity extends BaseActivity {
         closeInfoDrawerClickSubscription.unsubscribe();
         racksSubscription.unsubscribe();
         lastLocationSubscription.unsubscribe();
+        if (permissionGrantedSubsription != null) {
+            permissionGrantedSubsription.unsubscribe();
+        }
     }
 
     @Override
@@ -476,9 +499,18 @@ public class MapActivity extends BaseActivity {
         }
         googleMap.setTrafficEnabled(false);
         googleMap.setOnMarkerClickListener(marker -> true);
-        if (this.mapLocation.isSome() && !mapMoved) {
+        if (this.mapLocation.isSome() && !mapMoved && mapLocation.some().isWithinDesiredMapBounds()) {
             MapLocation mapLocation = this.mapLocation.some();
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mapLocation.latitude, mapLocation.longitude), mapLocation.zoom));
+            googleMap.animateCamera(CameraUpdateFactory.
+                    newCameraPosition(new CameraPosition.Builder()
+                            .target(new LatLng(mapLocation.latitude, mapLocation.longitude))
+                            .zoom(mapLocation.zoom)
+                            .bearing(mapLocation.bearing)
+                            .tilt(mapLocation.tilt)
+                            .build()));
+        } else if (!mapMoved) {
+            googleMap.animateCamera(
+                    CameraUpdateFactory.newLatLngZoom(HELSINKI, DEFAULT_ZOOM_LEVEL));
         }
         googleMap.setOnCameraChangeListener((CameraPosition position) -> {
             if (!mapInitialized) {
@@ -486,14 +518,19 @@ public class MapActivity extends BaseActivity {
             } else {
                 mapMoved = true;
                 if (this.mapLocation.isNone()) {
-                    mapLocation = Option.some(new MapLocation(position.target.latitude,
-                            position.target.longitude, position.zoom, position.bearing));
+                    mapLocation = Option.some(new MapLocation(
+                            position.target.latitude,
+                            position.target.longitude,
+                            position.zoom,
+                            position.bearing,
+                            position.tilt));
                 } else {
                     MapLocation mapLocation = this.mapLocation.some();
                     mapLocation.latitude = position.target.latitude;
                     mapLocation.longitude = position.target.longitude;
                     mapLocation.zoom = position.zoom;
                     mapLocation.bearing = position.bearing;
+                    mapLocation.tilt = position.tilt;
                 }
             }
             synchronized (MapActivity.this) {
