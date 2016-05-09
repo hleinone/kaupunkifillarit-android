@@ -170,7 +170,7 @@ public class MapActivity extends BaseActivity {
             synchronized (MapActivity.this) {
                 for (Rack rack : update) {
                     if (rackMarkers.contains(rack.id)) {
-                        rackMarkers.get(rack.id).some().update(rack, googleMap.some());
+                        rackMarkers.get(rack.id).some().update(rack);
                     } else {
                         rackMarkers.set(rack.id, new RackMarkerOptions(rack, getResources()).makeMarker(googleMap.some()));
                     }
@@ -408,11 +408,6 @@ public class MapActivity extends BaseActivity {
                                 touching = true;
                                 break;
                         }
-                        synchronized (MapActivity.this) {
-                            for (RackMarker rackMarker : rackMarkers.values()) {
-                                rackMarker.setMapRotation(googleMap.getCameraPosition().bearing);
-                            }
-                        }
                         return false;
                     });
                 }
@@ -531,11 +526,6 @@ public class MapActivity extends BaseActivity {
                     mapLocation.zoom = position.zoom;
                     mapLocation.bearing = position.bearing;
                     mapLocation.tilt = position.tilt;
-                }
-            }
-            synchronized (MapActivity.this) {
-                for (RackMarker rackMarker : rackMarkers.values()) {
-                    rackMarker.setMapRotation(position.bearing);
                 }
             }
         });
