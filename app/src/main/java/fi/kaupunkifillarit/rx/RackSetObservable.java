@@ -20,7 +20,7 @@ public class RackSetObservable {
     };
 
     public static Observable<Set<Rack>> createObservable(ObjectMapper objectMapper, OkHttpClient client, Request request) {
-        return Observable.interval(1, TimeUnit.SECONDS)
+        return Observable.interval(10, TimeUnit.SECONDS)
                 .flatMap(seconds -> OkHttpObservable.createObservable(client, request))
                 .map(response -> {
                     try {
