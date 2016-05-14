@@ -2,6 +2,6 @@
 
 ##TODO
 
-* Use the same font as in web
+* Display open source and font licenses
 * Report initial location to API/GA
-* Mapbox
+* Use Mapbox to style maps
