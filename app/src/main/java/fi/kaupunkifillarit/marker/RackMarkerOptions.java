@@ -22,7 +22,7 @@ public class RackMarkerOptions {
 
     public RackMarkerOptions(Rack rack, Resources res) {
         this.status = new MarkerOptions()
-                .icon(BitmapDescriptorFactory.fromBitmap(RackMarkerOptions.getMarkerBitmap(rack.bikes + "/" + rack.slots, res)))
+                .icon(BitmapDescriptorFactory.fromBitmap(RackMarkerOptions.getMarkerBitmap(rack.bikes < 2, rack.bikes + "/" + rack.slots, res)))
                 .flat(false)
                 .position(new LatLng(rack.latitude, rack.longitude))
                 .anchor(0.5f, 1f);
@@ -34,13 +34,13 @@ public class RackMarkerOptions {
         }
     }
 
-    private static Bitmap getMarkerBitmap(String text, Resources res) {
+    private static Bitmap getMarkerBitmap(boolean empty, String text, Resources res) {
         Paint paint = new Paint();
         paint.setTextSize(markerTextSize);
         paint.setColor(Color.BLACK);
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setAntiAlias(true);
-        Bitmap marker = BitmapFactory.decodeResource(res, R.drawable.rack_marker);
+        Bitmap marker = BitmapFactory.decodeResource(res, empty ? R.drawable.rack_marker_empty : R.drawable.rack_marker);
         Bitmap bitmap = Bitmap.createBitmap(marker.getWidth(), marker.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         canvas.drawBitmap(marker, 0, 0, null);
