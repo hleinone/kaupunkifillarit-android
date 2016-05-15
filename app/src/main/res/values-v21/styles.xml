@@ -18,7 +18,7 @@
     </style>
 
     <style name="AppTheme.AlertDialog" parent="android:Theme.Material.Light.Dialog.Alert">
-        <item name="android:colorAccent">@color/primary_dark</item>
+        <item name="android:colorAccent">@color/primary</item>
     </style>
 
 </resources>

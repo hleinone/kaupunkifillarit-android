@@ -33,6 +33,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -59,6 +60,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.psdev.licensesdialog.LicensesDialog;
 import fi.kaupunkifillarit.analytics.ErrorEvents;
 import fi.kaupunkifillarit.analytics.FeedbackEvents;
 import fi.kaupunkifillarit.analytics.InfoDrawerEvents;
@@ -181,6 +183,7 @@ public class MapActivity extends BaseActivity {
 
     private Subscription closeInfoDrawerClickSubscription;
     private Subscription shareClickSubscription;
+    private Subscription infoOpenSourceLicensesClickSubscription;
     private Subscription permissionGrantedSubsription;
 
     @BindView(R.id.content)
@@ -197,7 +200,11 @@ public class MapActivity extends BaseActivity {
     @BindView(R.id.share)
     ImageButton share;
     @BindView(R.id.info_content)
-    TextView infoContent;
+    LinearLayout infoContent;
+    @BindView(R.id.info_description)
+    TextView infoDescription;
+    @BindView(R.id.info_open_source_licenses)
+    TextView infoOpenSourceLicenses;
 
     private FeedbackForm feedbackForm;
     private UsageLogger usageLogger;
@@ -225,7 +232,7 @@ public class MapActivity extends BaseActivity {
     }
 
     private void setUpInfo() {
-        infoContent.setMovementMethod(LinkMovementMethod.getInstance());
+        infoDescription.setMovementMethod(LinkMovementMethod.getInstance());
         drawer.setDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
@@ -359,6 +366,14 @@ public class MapActivity extends BaseActivity {
             share.putExtra(Intent.EXTRA_TEXT, "https://play.google.com/store/apps/details?id=fi.kaupunkifillarit");
             startActivity(Intent.createChooser(share, null));
         });
+        infoOpenSourceLicensesClickSubscription = RxView.clicks(infoOpenSourceLicenses).subscribe(onClickEvent -> {
+            new LicensesDialog.Builder(this)
+                    .setTitle(R.string.open_source_licenses)
+                    .setCloseText(R.string.close)
+                    .setNotices(R.raw.notices)
+                    .build()
+                    .show();
+        });
     }
 
     @Override
@@ -374,6 +389,7 @@ public class MapActivity extends BaseActivity {
     }
 
     private void unsubscribeEverything() {
+        infoOpenSourceLicensesClickSubscription.unsubscribe();
         shareClickSubscription.unsubscribe();
         closeInfoDrawerClickSubscription.unsubscribe();
         racksSubscription.unsubscribe();

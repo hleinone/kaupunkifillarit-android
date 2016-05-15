@@ -10,7 +10,8 @@
         \n
         \n<a href="https://www.dropbox.com/sh/ni5lq7nu0waqprs/AAD5hdNUydglidjCfhM27zyDa?dl=0">Press kit löytyy täältä</a>.
         \n
-        \nTiedot ovat HSL:n tarjoamaa avointa dataa.</string>
+        \nTiedot ovat HSL:n tarjoamaa avointa dataa.\n</string>
+    <string name="open_source_licenses"><u>Avoimen lähdekoodin lisenssit</u></string>
     <string name="close">Sulje</string>
     <string name="rating_request_title">Pidätkö Kaupunkifillarit.fi-sovelluksesta?</string>
     <string name="rating_request_message">Arvostamme palautetta, joten toivoisimmekin sinulta arvostelua Play-kauppaan.</string>
