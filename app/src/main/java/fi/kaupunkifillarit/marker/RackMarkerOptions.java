@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -35,7 +36,9 @@ public class RackMarkerOptions {
     }
 
     private static Bitmap getMarkerBitmap(boolean empty, String text, Resources res) {
+        Typeface regular = Typeface.createFromAsset(res.getAssets(), "fonts/Montserrat-Regular.ttf");
         Paint paint = new Paint();
+        paint.setTypeface(regular);
         paint.setTextSize(markerTextSize);
         paint.setColor(Color.BLACK);
         paint.setTextAlign(Paint.Align.CENTER);
