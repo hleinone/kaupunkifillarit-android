@@ -46,6 +46,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -66,8 +67,10 @@ import fi.kaupunkifillarit.analytics.FeedbackEvents;
 import fi.kaupunkifillarit.analytics.InfoDrawerEvents;
 import fi.kaupunkifillarit.analytics.LocationPermissionsEvents;
 import fi.kaupunkifillarit.analytics.MapsEvents;
-import fi.kaupunkifillarit.marker.RackMarker;
-import fi.kaupunkifillarit.marker.RackMarkerOptions;
+import fi.kaupunkifillarit.maps.GoogleMaps;
+import fi.kaupunkifillarit.maps.Maps;
+import fi.kaupunkifillarit.maps.RackMarker;
+import fi.kaupunkifillarit.maps.RackMarkerOptions;
 import fi.kaupunkifillarit.model.MapLocation;
 import fi.kaupunkifillarit.model.Rack;
 import fi.kaupunkifillarit.rx.JacksonSharedPreferenceObservable;
@@ -92,7 +95,7 @@ public class MapActivity extends BaseActivity {
     @IdRes
     public static final int MY_LOCATION_BUTTON_ID = 0x2;
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 1;
-    private Option<GoogleMap> googleMap = Option.none();
+    private Option<Maps.MapWrapper> map = Option.none();
     private Option<MapLocation> mapLocation = Option.none();
 
     @Inject
@@ -129,9 +132,8 @@ public class MapActivity extends BaseActivity {
         public void onError(Throwable e) {
             Timber.e(e, "Location fetching failed");
             MapActivity.this.mapLocation = mapLocation;
-            if (!mapMoved && googleMap.isSome()) {
-                googleMap.some().animateCamera(
-                        CameraUpdateFactory.newLatLngZoom(HELSINKI, DEFAULT_ZOOM_LEVEL));
+            if (!mapMoved && map.isSome()) {
+                map.some().animateToMapLocation(DEFAULT_MAP_LOCATION);
             }
         }
 
@@ -139,14 +141,8 @@ public class MapActivity extends BaseActivity {
         public void onNext(MapLocation mapLocation) {
             if (MapActivity.this.mapLocation.isNone()) {
                 MapActivity.this.mapLocation = Option.some(mapLocation);
-                if (!mapMoved && googleMap.isSome() && mapLocation.isWithinDesiredMapBounds()) {
-                    googleMap.some().animateCamera(CameraUpdateFactory.
-                            newCameraPosition(new CameraPosition.Builder()
-                                    .target(new LatLng(mapLocation.latitude, mapLocation.longitude))
-                                    .zoom(mapLocation.zoom)
-                                    .bearing(mapLocation.bearing)
-                                    .tilt(mapLocation.tilt)
-                                    .build()));
+                if (!mapMoved && map.isSome() && mapLocation.isWithinDesiredMapBounds()) {
+                    map.some().animateToMapLocation(mapLocation);
                 }
             }
         }
@@ -174,7 +170,8 @@ public class MapActivity extends BaseActivity {
                     if (rackMarkers.contains(rack.id)) {
                         rackMarkers.get(rack.id).some().update(rack);
                     } else {
-                        rackMarkers.set(rack.id, new RackMarkerOptions(rack, getResources()).makeMarker(googleMap.some()));
+                        rackMarkers.set(rack.id, new RackMarkerOptions(rack,
+                                getResources(), map.some()).makeMarker(map.some()));
                     }
                 }
             }
@@ -184,7 +181,7 @@ public class MapActivity extends BaseActivity {
     private Subscription closeInfoDrawerClickSubscription;
     private Subscription shareClickSubscription;
     private Subscription infoOpenSourceLicensesClickSubscription;
-    private Subscription permissionGrantedSubsription;
+    private Subscription permissionGrantedSubscription;
 
     @BindView(R.id.content)
     RelativeLayout content;
@@ -225,7 +222,6 @@ public class MapActivity extends BaseActivity {
                     BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher),
                     primaryDark));
         }
-        RackMarkerOptions.setUpMarkerText(getResources().getDimensionPixelSize(R.dimen.indicator_text_size));
         feedbackForm = new FeedbackForm();
         usageLogger = new UsageLogger();
         setUpInfo();
@@ -286,18 +282,12 @@ public class MapActivity extends BaseActivity {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //noinspection MissingPermission
-                    googleMap.some().setMyLocationEnabled(true);
+                    map.some().setMyLocationEnabled(true);
                     tracker.send(LocationPermissionsEvents.granted());
-                    permissionGrantedSubsription = LastKnownLocationObservable.createObservable(this)
+                    permissionGrantedSubscription = LastKnownLocationObservable.createObservable(this)
                             .map(location -> new MapLocation(location.getLatitude(), location.getLongitude(), DEFAULT_ZOOM_LEVEL, 0, 0))
                             .subscribe(onNext -> {
-                                googleMap.some().animateCamera(CameraUpdateFactory.
-                                        newCameraPosition(new CameraPosition.Builder()
-                                                .target(new LatLng(onNext.latitude, onNext.longitude))
-                                                .zoom(onNext.zoom)
-                                                .bearing(onNext.bearing)
-                                                .tilt(onNext.tilt)
-                                                .build()));
+                                map.some().animateToMapLocation(onNext);
                             });
                 } else {
                     tracker.send(LocationPermissionsEvents.denied());
@@ -318,8 +308,8 @@ public class MapActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         checkGooglePlayServices();
-        subscribeEverything();
         setUpMapIfNeeded();
+        subscribeEverything();
         updateInfoViewPadding();
         updateContentPadding();
     }
@@ -394,8 +384,8 @@ public class MapActivity extends BaseActivity {
         closeInfoDrawerClickSubscription.unsubscribe();
         racksSubscription.unsubscribe();
         lastLocationSubscription.unsubscribe();
-        if (permissionGrantedSubsription != null) {
-            permissionGrantedSubsription.unsubscribe();
+        if (permissionGrantedSubscription != null) {
+            permissionGrantedSubscription.unsubscribe();
         }
     }
 
@@ -408,25 +398,23 @@ public class MapActivity extends BaseActivity {
     }
 
     private void setUpMapIfNeeded() {
-        if (googleMap.isNone()) {
+        if (map.isNone()) {
             CustomMapFragment mapFragment = (CustomMapFragment) getFragmentManager().findFragmentById(R.id.map);
-            mapFragment.getMapAsync(googleMap -> {
-                MapActivity.this.googleMap = Option.fromNull(googleMap);
-                if (MapActivity.this.googleMap.isSome()) {
-                    setUpMap();
-                    mapFragment.setOnTouchListener((View v, MotionEvent e) -> {
-                        switch (e.getAction()) {
-                            case MotionEvent.ACTION_CANCEL:
-                            case MotionEvent.ACTION_UP:
-                                touching = false;
-                                break;
-                            default:
-                                touching = true;
-                                break;
-                        }
-                        return false;
-                    });
-                }
+            GoogleMaps.create(mapFragment).subscribe((Maps.MapWrapper onNext) -> {
+                MapActivity.this.map = Option.some(onNext);
+                setUpMap();
+                mapFragment.setOnTouchListener((View v, MotionEvent e) -> {
+                    switch (e.getAction()) {
+                        case MotionEvent.ACTION_CANCEL:
+                        case MotionEvent.ACTION_UP:
+                            touching = false;
+                            break;
+                        default:
+                            touching = true;
+                            break;
+                    }
+                    return false;
+                });
             });
         }
     }
@@ -474,8 +462,8 @@ public class MapActivity extends BaseActivity {
     }
 
     private void updateMapPadding() {
-        if (googleMap.isSome()) {
-            googleMap.some().setPadding(0, obtainStatusBarHeight(), 0, 0);
+        if (map.isSome()) {
+            map.some().setPadding(0, obtainStatusBarHeight(), 0, 0);
         }
     }
 
@@ -502,50 +490,38 @@ public class MapActivity extends BaseActivity {
     }
 
     private void setUpMap() {
-        GoogleMap googleMap = this.googleMap.some();
+        Maps.MapWrapper map = this.map.some();
 
         if (!shouldRequestLocationPermission()) {
             //noinspection MissingPermission
-            googleMap.setMyLocationEnabled(true);
+            map.setMyLocationEnabled(true);
         }
-        googleMap.setTrafficEnabled(false);
-        googleMap.setOnMarkerClickListener(marker -> true);
+        map.setTrafficEnabled(false);
+        map.setOnMarkerClickListener(marker -> true);
         if (this.mapLocation.isSome() && !mapMoved && mapLocation.some().isWithinDesiredMapBounds()) {
             MapLocation mapLocation = this.mapLocation.some();
-            googleMap.animateCamera(CameraUpdateFactory.
-                    newCameraPosition(new CameraPosition.Builder()
-                            .target(new LatLng(mapLocation.latitude, mapLocation.longitude))
-                            .zoom(mapLocation.zoom)
-                            .bearing(mapLocation.bearing)
-                            .tilt(mapLocation.tilt)
-                            .build()));
+            map.animateToMapLocation(mapLocation);
         } else if (!mapMoved) {
-            googleMap.animateCamera(
-                    CameraUpdateFactory.newLatLngZoom(HELSINKI, DEFAULT_ZOOM_LEVEL));
+            map.animateToMapLocation(DEFAULT_MAP_LOCATION);
         }
-        googleMap.setOnCameraChangeListener((CameraPosition position) -> {
+        map.setOnMapLocationChangeListener((MapLocation mapLocation) -> {
             if (!mapInitialized) {
                 mapInitialized = true;
             } else {
                 mapMoved = true;
                 if (this.mapLocation.isNone()) {
-                    mapLocation = Option.some(new MapLocation(
-                            position.target.latitude,
-                            position.target.longitude,
-                            position.zoom,
-                            position.bearing,
-                            position.tilt));
+                    this.mapLocation = Option.some(mapLocation);
                 } else {
-                    MapLocation mapLocation = this.mapLocation.some();
-                    mapLocation.latitude = position.target.latitude;
-                    mapLocation.longitude = position.target.longitude;
-                    mapLocation.zoom = position.zoom;
-                    mapLocation.bearing = position.bearing;
-                    mapLocation.tilt = position.tilt;
+                    MapLocation oldMapLocation = this.mapLocation.some();
+                    oldMapLocation.latitude = mapLocation.latitude;
+                    oldMapLocation.longitude = mapLocation.longitude;
+                    oldMapLocation.zoom = mapLocation.zoom;
+                    oldMapLocation.bearing = mapLocation.bearing;
+                    oldMapLocation.tilt = mapLocation.tilt;
                 }
             }
         });
-        googleMap.setOnMyLocationButtonClickListener(() -> {
+        map.setOnMyLocationButtonClickListener(() -> {
             tracker.send(MapsEvents.myLocationClick());
             return false;
         });
