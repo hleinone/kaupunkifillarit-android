@@ -1,17 +1,18 @@
 package fi.kaupunkifillarit.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.bluelinelabs.logansquare.annotation.JsonField;
+import com.bluelinelabs.logansquare.annotation.JsonObject;
 
-import fj.data.Set;
+import java.util.Set;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonObject
 public class Racks {
-    public final Set<Rack> racks;
+    @JsonField(name = "bikeRentalStations")
+    public Set<Rack> racks;
 
-    @JsonCreator
-    public Racks(@JsonProperty("bikeRentalStations") Set<Rack> racks) {
+    public Racks() { }
+
+    public Racks(Set<Rack> racks) {
         this.racks = racks;
     }
 }

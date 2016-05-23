@@ -37,10 +37,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bluelinelabs.logansquare.LoganSquare;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ShareEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -50,6 +49,7 @@ import com.jakewharton.rxbinding.view.RxView;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -69,7 +69,7 @@ import fi.kaupunkifillarit.maps.RackMarker;
 import fi.kaupunkifillarit.maps.RackMarkerOptions;
 import fi.kaupunkifillarit.model.MapLocation;
 import fi.kaupunkifillarit.model.Rack;
-import fi.kaupunkifillarit.rx.JacksonSharedPreferenceObservable;
+import fi.kaupunkifillarit.rx.LoganSquareSharedPreferenceObservable;
 import fi.kaupunkifillarit.rx.RackSetObservable;
 import fj.data.HashMap;
 import fj.data.Option;
@@ -93,9 +93,6 @@ public class MapActivity extends BaseActivity {
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 1;
     private Option<Maps.MapWrapper> map = Option.none();
     private Option<MapLocation> mapLocation = Option.none();
-
-    @Inject
-    ObjectMapper objectMapper;
 
     @Inject
     SharedPreferences sharedPreferences;
@@ -326,7 +323,7 @@ public class MapActivity extends BaseActivity {
 
     private void subscribeEverything() {
         lastLocationSubscription = Observable.concat(
-                JacksonSharedPreferenceObservable.createObservable(objectMapper, sharedPreferences, LAST_MAP_LOCATION, MapLocation.class),
+                LoganSquareSharedPreferenceObservable.createObservable(sharedPreferences, LAST_MAP_LOCATION, MapLocation.class),
                 LastKnownLocationObservable.createObservable(this)
                         .map(location -> new MapLocation(location.getLatitude(), location.getLongitude(), DEFAULT_ZOOM_LEVEL, 0, 0)),
                 Observable.just(DEFAULT_MAP_LOCATION).delay(200, TimeUnit.MILLISECONDS))
@@ -338,7 +335,7 @@ public class MapActivity extends BaseActivity {
                 .get()
                 .build();
 
-        racksSubscription = RackSetObservable.createObservable(objectMapper, okHttpClient, request)
+        racksSubscription = RackSetObservable.createObservable(okHttpClient, request)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(racksObserver);
         closeInfoDrawerClickSubscription = RxView.clicks(closeInfoDrawer).subscribe(onClickEvent -> {
@@ -366,9 +363,9 @@ public class MapActivity extends BaseActivity {
     protected void onPause() {
         unsubscribeEverything();
         try {
-            String json = objectMapper.writeValueAsString(mapLocation.orSome(DEFAULT_MAP_LOCATION));
+            String json = LoganSquare.serialize(mapLocation.orSome(DEFAULT_MAP_LOCATION));
             sharedPreferences.edit().putString(LAST_MAP_LOCATION, json).apply();
-        } catch (JsonProcessingException e) {
+        } catch (IOException e) {
             Timber.w(e, "Storing location failed");
         }
         super.onPause();

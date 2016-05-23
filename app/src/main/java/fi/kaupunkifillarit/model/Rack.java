@@ -1,31 +1,41 @@
 package fi.kaupunkifillarit.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.bluelinelabs.logansquare.annotation.JsonField;
+import com.bluelinelabs.logansquare.annotation.JsonObject;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonObject
 public class Rack {
-    public final String id;
-    public final String name;
-    public final double longitude;
-    public final double latitude;
-    public final int bikes;
-    public final int slots;
+    @JsonField
+    public String id;
+    @JsonField
+    public String name;
+    @JsonField(name = "lat")
+    public double latitude;
+    @JsonField(name = "lon")
+    public double longitude;
+    @JsonField(name = "bikesAvailable")
+    public int bikes;
+    @JsonField(name = "spacesAvailable")
+    public int spaces;
 
-    @JsonCreator
-    public Rack(@JsonProperty("id") String id,
-                @JsonProperty("name") String name,
-                @JsonProperty("lat") double latitude,
-                @JsonProperty("lon") double longitude,
-                @JsonProperty("bikesAvailable") int bikes,
-                @JsonProperty("spacesAvailable") int spaces) {
+    public Rack() { }
+
+    public Rack(String id,
+                String name,
+                double latitude,
+                double longitude,
+                int bikes,
+                int spaces) {
         this.id = id;
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
         this.bikes = bikes;
-        this.slots = bikes + spaces;
+        this.spaces = spaces;
+    }
+
+    public int getSlots() {
+        return bikes + spaces;
     }
 
     @Override

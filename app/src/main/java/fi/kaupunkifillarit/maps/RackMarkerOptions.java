@@ -18,7 +18,7 @@ public class RackMarkerOptions {
         this.status = map.createMarkerOptions()
                 .icon(RackMarkerOptions.getMarkerBitmap(
                         rack.bikes < 2,
-                        rack.bikes + "/" + rack.slots,
+                        rack.bikes + "/" + rack.getSlots(),
                         res))
                 .flat(false)
                 .position(rack.latitude, rack.longitude)

@@ -1,7 +1,6 @@
 package fi.kaupunkifillarit.rx;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.bluelinelabs.logansquare.ParameterizedType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 
@@ -10,16 +9,17 @@ import java.util.concurrent.TimeUnit;
 
 import fi.kaupunkifillarit.model.Rack;
 import fi.kaupunkifillarit.model.Racks;
+import fj.Ord;
 import fj.data.Set;
 import rx.Observable;
 import rx.exceptions.OnErrorThrowable;
 import timber.log.Timber;
 
 public class RackSetObservable {
-    private static final TypeReference<Racks> TYPE_REFERENCE = new TypeReference<Racks>() {
+    private static final ParameterizedType<Racks> TYPE_REFERENCE = new ParameterizedType<Racks>() {
     };
 
-    public static Observable<Set<Rack>> createObservable(ObjectMapper objectMapper, OkHttpClient client, Request request) {
+    public static Observable<Set<Rack>> createObservable(OkHttpClient client, Request request) {
         return Observable.interval(0, 10, TimeUnit.SECONDS)
                 .flatMap(seconds -> OkHttpObservable.createObservable(client, request))
                 .map(response -> {
@@ -29,9 +29,9 @@ public class RackSetObservable {
                         throw OnErrorThrowable.from(e);
                     }
                 })
-                .flatMap(is -> JacksonObservable.createObservable(objectMapper, is, TYPE_REFERENCE)).doOnError(throwable -> {
+                .flatMap(is -> LoganSquareObservable.createObservable(is, TYPE_REFERENCE)).doOnError(throwable -> {
                     Timber.w(throwable, "Rack retrieval failure");
                     throw OnErrorThrowable.from(throwable);
-                }).retry().map(racks -> racks.racks);
+                }).retry().map(racks -> Set.iterableSet(Ord.hashOrd(), racks.racks));
     }
 }

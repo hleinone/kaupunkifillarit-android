@@ -1,22 +1,28 @@
 package fi.kaupunkifillarit.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.bluelinelabs.logansquare.annotation.JsonField;
+import com.bluelinelabs.logansquare.annotation.JsonObject;
 
+@JsonObject
 public class MapLocation {
+    @JsonField
     public double latitude;
+    @JsonField
     public double longitude;
+    @JsonField
     public float zoom;
+    @JsonField
     public float bearing;
+    @JsonField
     public float tilt;
 
-    @JsonCreator
-    public MapLocation(@JsonProperty("latitude") double latitude,
-                       @JsonProperty("longitude") double longitude,
-                       @JsonProperty("zoom") float zoom,
-                       @JsonProperty("bearing") float bearing,
-                       @JsonProperty("tilt") float tilt) {
+    public MapLocation() { }
+
+    public MapLocation(double latitude,
+                       double longitude,
+                       float zoom,
+                       float bearing,
+                       float tilt) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.zoom = zoom;
@@ -24,7 +30,6 @@ public class MapLocation {
         this.tilt = tilt;
     }
 
-    @JsonIgnore
     public boolean isWithinDesiredMapBounds() {
         return latitude > 60.151568 &&
                 latitude < 60.194072 &&
