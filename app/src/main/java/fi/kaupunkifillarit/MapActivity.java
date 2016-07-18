@@ -428,16 +428,19 @@ public class MapActivity extends BaseActivity {
         int usableHeight = metrics.heightPixels;
         getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
         int realHeight = metrics.heightPixels;
-        if (realHeight - obtainStatusBarHeight() > usableHeight) {
+        int statusBarHeight = obtainStatusBarHeight();
+        if (realHeight - statusBarHeight > usableHeight) {
             return obtainNavigationBarHeightFromProperty();
         }
         return 0;
     }
 
     private int obtainNavigationBarHeightFromProperty() {
-        int resourceId = getResources().getIdentifier("navigation_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            return getResources().getDimensionPixelSize(resourceId);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            int resourceId = getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                return getResources().getDimensionPixelSize(resourceId);
+            }
         }
         return 0;
     }
@@ -615,10 +618,8 @@ public class MapActivity extends BaseActivity {
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            DialogInterface.OnClickListener positiveClick = (DialogInterface dialog, int which) -> {
-                ActivityCompat.requestPermissions(getActivity(),
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
-            };
+            DialogInterface.OnClickListener positiveClick = (DialogInterface dialog, int which) -> ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
 
             Dialog dialog;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
