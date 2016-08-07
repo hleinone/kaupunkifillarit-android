@@ -155,7 +155,7 @@ class MapActivity : BaseActivity() {
         (application as KaupunkifillaritApplication).component.inject(this)
         ButterKnife.bind(this)
         MapsInitializer.initialize(application)
-        @SuppressWarnings("deprecation")
+        @Suppress("DEPRECATION")
         val primaryDark = resources.getColor(R.color.primary_dark)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setTaskDescription(ActivityManager.TaskDescription(getString(R.string.app_name),
@@ -169,6 +169,7 @@ class MapActivity : BaseActivity() {
 
     private fun setUpInfo() {
         infoDescription.movementMethod = LinkMovementMethod.getInstance()
+        @Suppress("DEPRECATION")
         drawer.setDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
             }
@@ -321,7 +322,9 @@ class MapActivity : BaseActivity() {
         if (map == null) {
             val mapFragment = fragmentManager.findFragmentById(R.id.map) as CustomMapFragment
             GoogleMaps.create(mapFragment).subscribe { onNext: Maps.MapWrapper<*, *> ->
-                this@MapActivity.map = onNext as Maps.MapWrapper<Maps.MarkerWrapper<*>, Maps.MarkerOptionsWrapper<*>>
+                @Suppress("UNCHECKED_CAST")
+                val next = onNext as Maps.MapWrapper<Maps.MarkerWrapper<*>, Maps.MarkerOptionsWrapper<*>>
+                this@MapActivity.map = next
                 setUpMap()
                 mapFragment.setOnTouchListener(View.OnTouchListener { view, motionEvent ->
                     when (motionEvent.action) {
