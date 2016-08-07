@@ -368,7 +368,7 @@ class MapActivity : BaseActivity() {
             return 0
         }
 
-    val navigationbarWidth: Int
+    val navigationBarWidth: Int
         get() {
             val metrics = DisplayMetrics()
             windowManager.defaultDisplay.getMetrics(metrics)
@@ -395,7 +395,7 @@ class MapActivity : BaseActivity() {
         infoContent.setPadding(infoContent.paddingLeft, infoContent.paddingTop, infoContent.paddingRight, navigationBarHeight + resources.getDimensionPixelSize(R.dimen.info_view_vertical_margin))
         val drawerParams = drawer.layoutParams as FrameLayout.LayoutParams
         drawerParams.marginStart = 0
-        drawerParams.marginEnd = navigationbarWidth
+        drawerParams.marginEnd = navigationBarWidth
         drawer.layoutParams = drawerParams
     }
 
