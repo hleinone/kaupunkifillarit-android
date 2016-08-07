@@ -13,21 +13,27 @@
         <license>Apache Software License 2.0</license>
     </notice>
     <notice>
-        <name>Functional Java</name>
-        <url>http://www.functionaljava.org/</url>
-        <copyright>Copyright (c) 2008-2011, Tony Morris, Runar Bjarnason, Tom Adams, Brad Clow, Ricky Clarkson, Jason Zaugg</copyright>
-        <license>BSD 3-Clause License</license>
+        <name>LoganSquare</name>
+        <url>https://github.com/bluelinelabs/LoganSquare</url>
+        <copyright>Copyright 2015 BlueLine Labs, Inc.</copyright>
+        <license>Apache Software License 2.0</license>
     </notice>
     <notice>
-        <name>RxJava</name>
-        <url>https://github.com/ReactiveX/RxJava</url>
-        <copyright>Copyright 2013 Netflix, Inc.</copyright>
+        <name>RxKotlin</name>
+        <url>https://github.com/ReactiveX/RxKotlin</url>
+        <copyright>Copyright 2014 Netflix, Inc.</copyright>
         <license>Apache Software License 2.0</license>
     </notice>
     <notice>
         <name>RxAndroid</name>
         <url>https://github.com/ReactiveX/RxAndroid</url>
         <copyright>Copyright 2015 The RxAndroid authors</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>RxLifecycle</name>
+        <url>https://github.com/trello/RxLifecycle</url>
+        <copyright>Copyright (C) 2015 Trello</copyright>
         <license>Apache Software License 2.0</license>
     </notice>
     <notice>
@@ -43,22 +49,10 @@
         <license>Apache Software License 2.0</license>
     </notice>
     <notice>
-        <name>OkHttp</name>
-        <url>http://square.github.io/okhttp/</url>
-        <copyright>Copyright 2016 Square, Inc.</copyright>
-        <license>Apache Software License 2.0</license>
-    </notice>
-    <notice>
-        <name>Okio</name>
-        <url>https://github.com/square/okio</url>
-        <copyright>Copyright (C) 2014 Square, Inc.</copyright>
-        <license>Apache Software License 2.0</license>
-    </notice>
-    <notice>
-        <name>Jackson JSON Processor</name>
-        <url>http://wiki.fasterxml.com/JacksonHome</url>
-        <copyright/>
-        <license>Apache Software License 2.0</license>
+        <name>Fuel</name>
+        <url>https://github.com/kittinunf/Fuel</url>
+        <copyright />
+        <license>MIT License</license>
     </notice>
     <notice>
         <name>Timber</name>
