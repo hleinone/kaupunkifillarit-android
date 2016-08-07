@@ -42,46 +42,6 @@
     public static <fields>;
 }
 
-# Butter Knife
--keep class butterknife.** { *; }
--dontwarn butterknife.internal.**
--keep class **$$ViewBinder { *; }
-
--keepclasseswithmembernames class * {
-    @butterknife.* <fields>;
-}
-
--keepclasseswithmembernames class * {
-    @butterknife.* <methods>;
-}
-
-# Jackson
--dontskipnonpubliclibraryclassmembers
--dontwarn javax.xml.**
--dontwarn org.w3c.dom.**
--dontwarn com.fasterxml.jackson.databind.**
--dontnote com.fasterxml.jackson.databind.**
--keepnames class com.fasterxml.jackson.** { *; }
--keepclassmembernames class fi.kaupunkifillarit.model.* {
-    @com.fasterxml.jackson.annotation.JsonCreator <init>(...);
-}
--keep class fi.kaupunkifillarit.model.* { *; }
--keepclassmembers enum com.fasterxml.jackson.**
--keepclassmembers class com.fasterxml.jackson.**$* {
-  public static <fields>;
-}
--keepattributes *Annotation*,EnclosingMethod,Signature
-
-# OkHttp
--keepattributes Signature
--keepattributes *Annotation*
--keep class com.squareup.okhttp.** { *; }
--keep interface com.squareup.okhttp.** { *; }
--dontwarn com.squareup.okhttp.**
-
-#Okio
--dontwarn okio.**
-
 # Keep line numbers
 -renamesourcefileattribute SourceFile
 -keepattributes SourceFile,LineNumberTable
@@ -97,8 +57,7 @@
    long consumerNode;
 }
 
-# Gradle Retrolambda
--dontwarn java.lang.invoke.*
-
-# Timber
--dontwarn org.jetbrains.annotations.NonNls
+# LoganSquare
+-keep class com.bluelinelabs.logansquare.** { *; }
+-keep @com.bluelinelabs.logansquare.annotation.JsonObject class *
+-keep class **$$JsonObjectMapper { *; }
