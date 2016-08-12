@@ -84,18 +84,15 @@ class MapActivity : BaseActivity() {
 
         override fun onError(e: Throwable) {
             Timber.e(e, "Location fetching failed")
-            this@MapActivity.mapLocation = mapLocation
             if (!mapMoved) {
                 map?.animateToMapLocation(DEFAULT_MAP_LOCATION)
             }
         }
 
         override fun onNext(mapLocation: MapLocation) {
-            if (this@MapActivity.mapLocation == null) {
+            if (this@MapActivity.mapLocation == null && !mapMoved && mapLocation.isWithinDesiredMapBounds) {
                 this@MapActivity.mapLocation = mapLocation
-                if (!mapMoved && mapLocation.isWithinDesiredMapBounds) {
-                    map?.animateToMapLocation(mapLocation)
-                }
+                map?.animateToMapLocation(mapLocation)
             }
         }
     }
