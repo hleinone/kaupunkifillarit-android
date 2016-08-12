@@ -501,23 +501,13 @@ class MapActivity : BaseActivity() {
                 (activity as MapActivity).sharedPreferences.edit().putInt(MapActivity.FEEDBACK_ANSWER, DialogInterface.BUTTON_NEGATIVE).apply()
                 (activity as MapActivity).tracker.send(FeedbackEvents.buttonClick(DialogInterface.BUTTON_NEGATIVE))
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                return android.app.AlertDialog.Builder(activity, R.style.AppTheme_AlertDialog)
-                        .setTitle(R.string.rating_request_title)
-                        .setMessage(R.string.rating_request_message)
-                        .setPositiveButton(R.string.rating_request_rate, positiveClick)
-                        .setNeutralButton(R.string.rating_request_later, neutralClick)
-                        .setNegativeButton(R.string.rating_request_dont_remind, negativeClick)
-                        .create()
-            } else {
-                return android.support.v7.app.AlertDialog.Builder(activity, R.style.AppTheme_AlertDialog)
-                        .setTitle(R.string.rating_request_title)
-                        .setMessage(R.string.rating_request_message)
-                        .setPositiveButton(R.string.rating_request_rate, positiveClick)
-                        .setNeutralButton(R.string.rating_request_later, neutralClick)
-                        .setNegativeButton(R.string.rating_request_dont_remind, negativeClick)
-                        .create()
-            }
+            return android.support.v7.app.AlertDialog.Builder(activity, R.style.AppTheme_AlertDialog)
+                    .setTitle(R.string.rating_request_title)
+                    .setMessage(R.string.rating_request_message)
+                    .setPositiveButton(R.string.rating_request_rate, positiveClick)
+                    .setNeutralButton(R.string.rating_request_later, neutralClick)
+                    .setNegativeButton(R.string.rating_request_dont_remind, negativeClick)
+                    .create()
         }
     }
 
@@ -537,20 +527,12 @@ class MapActivity : BaseActivity() {
                         arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), MY_PERMISSIONS_REQUEST_LOCATION)
             }
 
-            val dialog: Dialog
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                dialog = android.app.AlertDialog.Builder(activity, R.style.AppTheme_AlertDialog)
-                        .setTitle(R.string.location_permission_rationale_title)
-                        .setMessage(R.string.location_permission_rationale_message)
-                        .setPositiveButton(R.string.location_permission_rationale_ok, positiveClick)
-                        .create()
-            } else {
-                dialog = android.support.v7.app.AlertDialog.Builder(activity, R.style.AppTheme_AlertDialog)
-                        .setTitle(R.string.location_permission_rationale_title)
-                        .setMessage(R.string.location_permission_rationale_message)
-                        .setPositiveButton(R.string.location_permission_rationale_ok, positiveClick)
-                        .create()
-            }
+            val dialog = android.support.v7.app.AlertDialog.Builder(activity, R.style.AppTheme_AlertDialog)
+                    .setTitle(R.string.location_permission_rationale_title)
+                    .setMessage(R.string.location_permission_rationale_message)
+                    .setPositiveButton(R.string.location_permission_rationale_ok, positiveClick)
+                    .create()
+
             isCancelable = false
             dialog.setCanceledOnTouchOutside(false)
             return dialog
