@@ -29,6 +29,7 @@
         android:layout_width="@dimen/info_drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="end"
+        android:clickable="true"
         android:background="@color/primary">
 
         <ImageView
