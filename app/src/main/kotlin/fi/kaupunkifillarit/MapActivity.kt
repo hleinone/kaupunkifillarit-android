@@ -123,9 +123,6 @@ class MapActivity : BaseActivity() {
         }
     }
 
-    val myLocationButton: View?
-        get() = findViewById(MY_LOCATION_BUTTON_ID)
-
     lateinit private var feedbackForm: FeedbackForm
     lateinit private var usageLogger: UsageLogger
 
