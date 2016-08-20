@@ -7,12 +7,6 @@
         <license>Apache Software License 2.0</license>
     </notice>
     <notice>
-        <name>ButterKnife</name>
-        <url>http://jakewharton.github.io/butterknife/</url>
-        <copyright>Copyright 2013 Jake Wharton</copyright>
-        <license>Apache Software License 2.0</license>
-    </notice>
-    <notice>
         <name>LoganSquare</name>
         <url>https://github.com/bluelinelabs/LoganSquare</url>
         <copyright>Copyright 2015 BlueLine Labs, Inc.</copyright>
