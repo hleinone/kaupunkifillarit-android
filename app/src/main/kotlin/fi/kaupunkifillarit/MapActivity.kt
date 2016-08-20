@@ -33,6 +33,7 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.model.LatLng
+import com.jakewharton.rxbinding.support.v4.widget.drawerOpen
 import com.jakewharton.rxbinding.view.clicks
 import com.trello.rxlifecycle.kotlin.bindToLifecycle
 import de.psdev.licensesdialog.LicensesDialog
@@ -147,15 +148,10 @@ class MapActivity : BaseActivity() {
     private fun setUpInfo() {
         info_description.movementMethod = LinkMovementMethod.getInstance()
         @Suppress("DEPRECATION")
-        drawer.setDrawerListener(object : DrawerLayout.DrawerListener {
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-            }
-
-            override fun onDrawerOpened(drawerView: View) {
+        drawer.drawerOpen(GravityCompat.END).bindToLifecycle(this).subscribe { open ->
+            if (open) {
                 tracker.send(InfoDrawerEvents.open())
-            }
-
-            override fun onDrawerClosed(drawerView: View) {
+            } else {
                 tracker.send(InfoDrawerEvents.close())
                 if (sharedPreferences.getBoolean(FIRST_RUN, true)) {
                     if (shouldRequestLocationPermission()) {
@@ -163,10 +159,7 @@ class MapActivity : BaseActivity() {
                     }
                 }
             }
-
-            override fun onDrawerStateChanged(newState: Int) {
-            }
-        })
+        }
         if (sharedPreferences.getBoolean(FIRST_RUN, true)) {
             drawer.openDrawer(GravityCompat.END)
         }
