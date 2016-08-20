@@ -33,7 +33,7 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.model.LatLng
-import com.jakewharton.rxbinding.view.RxView
+import com.jakewharton.rxbinding.view.clicks
 import com.trello.rxlifecycle.kotlin.bindToLifecycle
 import de.psdev.licensesdialog.LicensesDialog
 import fi.kaupunkifillarit.analytics.*
@@ -253,10 +253,10 @@ class MapActivity : BaseActivity() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .bindToLifecycle(this)
                 .subscribe(racksObserver)
-        RxView.clicks(close_info_drawer)
+        close_info_drawer.clicks()
                 .bindToLifecycle(this)
                 .subscribe { onClickEvent -> drawer.closeDrawer(GravityCompat.END) }
-        RxView.clicks(share)
+        share.clicks()
                 .bindToLifecycle(this)
                 .subscribe { onClickEvent ->
                     answers.logShare(ShareEvent())
@@ -266,7 +266,7 @@ class MapActivity : BaseActivity() {
                     share.putExtra(Intent.EXTRA_TEXT, "https://play.google.com/store/apps/details?id=fi.kaupunkifillarit")
                     startActivity(Intent.createChooser(share, null))
                 }
-        RxView.clicks(info_open_source_licenses)
+        info_open_source_licenses.clicks()
                 .bindToLifecycle(this)
                 .subscribe { onClickEvent ->
                     LicensesDialog.Builder(this)
