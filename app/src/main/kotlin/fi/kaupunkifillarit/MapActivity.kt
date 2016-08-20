@@ -397,10 +397,8 @@ class MapActivity : BaseActivity() {
                 return true
             }
         })
-        if (!mapMoved && mapLocation?.isWithinDesiredMapBounds ?: false) {
-            map.animateToMapLocation(mapLocation!!)
-        } else if (!mapMoved) {
-            map.animateToMapLocation(DEFAULT_MAP_LOCATION)
+        if (!mapMoved) {
+            map.animateToMapLocation(if (mapLocation?.isWithinDesiredMapBounds ?: false) mapLocation!! else DEFAULT_MAP_LOCATION)
         }
         map.setOnMapLocationChangeListener(object : Maps.OnMapLocationChangeListener {
             override fun onMapLocationChange(mapLocation: MapLocation) {
