@@ -197,7 +197,8 @@ class MapActivity : BaseActivity() {
                     tracker.send(LocationPermissionsEvents.granted())
                     LastKnownLocationObservable.createObservable(this)
                             .map { location ->
-                                MapLocation(location.latitude, location.longitude, DEFAULT_ZOOM_LEVEL, 0f, 0f)
+                                val mapLocation = MapLocation(location.latitude, location.longitude, DEFAULT_ZOOM_LEVEL, 0f, 0f)
+                                if (mapLocation.isWithinDesiredMapBounds) mapLocation else DEFAULT_MAP_LOCATION
                             }
                             .bindToLifecycle(this)
                             .subscribe { onNext -> map?.animateToMapLocation(onNext) }
