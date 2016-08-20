@@ -23,9 +23,8 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import butterknife.BindView
-import butterknife.ButterKnife
+import android.widget.FrameLayout
+import android.widget.RelativeLayout
 import com.bluelinelabs.logansquare.LoganSquare
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ShareEvent
@@ -47,6 +46,7 @@ import fi.kaupunkifillarit.model.Rack
 import fi.kaupunkifillarit.rx.RackSetObservable
 import fi.kaupunkifillarit.util.map
 import fi.kaupunkifillarit.util.rx_object
+import kotlinx.android.synthetic.main.activity_map.*
 import pl.charmas.android.reactivelocation.observables.location.LastKnownLocationObservable
 import rx.Observable
 import rx.Observer
@@ -123,24 +123,8 @@ class MapActivity : BaseActivity() {
         }
     }
 
-    @BindView(R.id.content)
-    lateinit var content: RelativeLayout
-    @BindView(MY_LOCATION_BUTTON_ID)
-    lateinit var myLocationButton: View
-    @BindView(R.id.drawer)
-    lateinit var drawer: DrawerLayout
-    @BindView(R.id.close_info_drawer)
-    lateinit var closeInfoDrawer: ImageButton
-    @BindView(R.id.logo)
-    lateinit var logo: ImageView
-    @BindView(R.id.share)
-    lateinit var share: ImageButton
-    @BindView(R.id.info_content)
-    lateinit var infoContent: LinearLayout
-    @BindView(R.id.info_description)
-    lateinit var infoDescription: TextView
-    @BindView(R.id.info_open_source_licenses)
-    lateinit var infoOpenSourceLicenses: TextView
+    val myLocationButton: View?
+        get() = findViewById(MY_LOCATION_BUTTON_ID)
 
     lateinit private var feedbackForm: FeedbackForm
     lateinit private var usageLogger: UsageLogger
@@ -150,7 +134,6 @@ class MapActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
         (application as KaupunkifillaritApplication).component.inject(this)
-        ButterKnife.bind(this)
         MapsInitializer.initialize(application)
         @Suppress("DEPRECATION")
         val primaryDark = resources.getColor(R.color.primary_dark)
@@ -165,7 +148,7 @@ class MapActivity : BaseActivity() {
     }
 
     private fun setUpInfo() {
-        infoDescription.movementMethod = LinkMovementMethod.getInstance()
+        info_description.movementMethod = LinkMovementMethod.getInstance()
         @Suppress("DEPRECATION")
         drawer.setDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
@@ -272,7 +255,7 @@ class MapActivity : BaseActivity() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .bindToLifecycle(this)
                 .subscribe(racksObserver)
-        RxView.clicks(closeInfoDrawer)
+        RxView.clicks(close_info_drawer)
                 .bindToLifecycle(this)
                 .subscribe { onClickEvent -> drawer.closeDrawer(GravityCompat.END) }
         RxView.clicks(share)
@@ -285,7 +268,7 @@ class MapActivity : BaseActivity() {
                     share.putExtra(Intent.EXTRA_TEXT, "https://play.google.com/store/apps/details?id=fi.kaupunkifillarit")
                     startActivity(Intent.createChooser(share, null))
                 }
-        RxView.clicks(infoOpenSourceLicenses)
+        RxView.clicks(info_open_source_licenses)
                 .bindToLifecycle(this)
                 .subscribe { onClickEvent ->
                     LicensesDialog.Builder(this)
@@ -386,10 +369,10 @@ class MapActivity : BaseActivity() {
         val logoParams = logo.layoutParams as RelativeLayout.LayoutParams
         logoParams.topMargin = statusBarHeight + resources.getDimensionPixelSize(R.dimen.info_view_vertical_margin)
         logo.layoutParams = logoParams
-        val closeInfoDrawerParams = closeInfoDrawer.layoutParams as RelativeLayout.LayoutParams
+        val closeInfoDrawerParams = close_info_drawer.layoutParams as RelativeLayout.LayoutParams
         closeInfoDrawerParams.topMargin = statusBarHeight
-        closeInfoDrawer.layoutParams = closeInfoDrawerParams
-        infoContent.setPadding(infoContent.paddingLeft, infoContent.paddingTop, infoContent.paddingRight, navigationBarHeight + resources.getDimensionPixelSize(R.dimen.info_view_vertical_margin))
+        close_info_drawer.layoutParams = closeInfoDrawerParams
+        info_content.setPadding(info_content.paddingLeft, info_content.paddingTop, info_content.paddingRight, navigationBarHeight + resources.getDimensionPixelSize(R.dimen.info_view_vertical_margin))
         val drawerParams = drawer.layoutParams as FrameLayout.LayoutParams
         drawerParams.marginStart = 0
         drawerParams.marginEnd = navigationBarWidth
