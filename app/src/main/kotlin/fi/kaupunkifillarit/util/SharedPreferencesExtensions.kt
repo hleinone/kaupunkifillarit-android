@@ -5,6 +5,12 @@ import com.bluelinelabs.logansquare.LoganSquare
 import com.bluelinelabs.logansquare.ParameterizedType
 import rx.Observable
 
+fun <T : Any> SharedPreferences.getObject(key: String, type: Class<T>, defValue: T?) = getString(key, null).map { LoganSquare.parse(it, type) } ?: defValue
+
+fun <T : Any> SharedPreferences.getObject(key: String, parameterizedType: ParameterizedType<T>, defValue: T?) = getString(key, null).map { LoganSquare.parse(it, parameterizedType) } ?: defValue
+
+fun <T : Any> SharedPreferences.Editor.putObject(key: String, value: T?) = putString(key, value.map { LoganSquare.serialize(it) })
+
 fun SharedPreferences.rx_getBoolean(key: String, defValue: Boolean): Observable<Boolean> = Observable.just(getBoolean(key, defValue))
 
 fun SharedPreferences.rx_getFloat(key: String, defValue: Float): Observable<Float> = Observable.just(getFloat(key, defValue))
@@ -17,10 +23,7 @@ fun SharedPreferences.rx_getString(key: String, defValue: String?): Observable<S
 
 fun SharedPreferences.rx_getStringSet(key: String, defValue: Set<String>?): Observable<Set<String>?> = Observable.just(getStringSet(key, defValue))
 
-fun <T : Any> SharedPreferences.getObject(key: String, type: Class<T>, defValue: T?) = getString(key, null).map { LoganSquare.parse(it, type) } ?: defValue
-
-fun <T : Any> SharedPreferences.getObject(key: String, parameterizedType: ParameterizedType<T>, defValue: T?) = getString(key, null).map { LoganSquare.parse(it, parameterizedType) } ?: defValue
-
 fun <T : Any> SharedPreferences.rx_getObject(key: String, type: Class<T>, defValue: T?) = Observable.just(getObject(key, type, defValue))
 
 fun <T : Any> SharedPreferences.rx_getObject(key: String, parameterizedType: ParameterizedType<T>, defValue: T?) = Observable.just(getObject(key, parameterizedType, defValue))
+
