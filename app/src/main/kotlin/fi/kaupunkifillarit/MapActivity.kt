@@ -46,12 +46,13 @@ import fi.kaupunkifillarit.model.MapLocation
 import fi.kaupunkifillarit.model.Rack
 import fi.kaupunkifillarit.rx.RackSetObservable
 import fi.kaupunkifillarit.util.map
-import fi.kaupunkifillarit.util.rx_object
+import fi.kaupunkifillarit.util.rx_getObject
 import kotlinx.android.synthetic.main.activity_map.*
 import pl.charmas.android.reactivelocation.observables.location.LastKnownLocationObservable
 import rx.Observable
 import rx.Observer
 import rx.android.schedulers.AndroidSchedulers
+import rx.lang.kotlin.filterNotNull
 import timber.log.Timber
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -234,7 +235,7 @@ class MapActivity : BaseActivity() {
 
     private fun subscribeEverything() {
         Observable.concat(
-                sharedPreferences.rx_object(LAST_MAP_LOCATION, MapLocation::class.java),
+                sharedPreferences.rx_getObject(LAST_MAP_LOCATION, MapLocation::class.java, null).filterNotNull(),
                 LastKnownLocationObservable.createObservable(this).map { location -> MapLocation(location.latitude, location.longitude, DEFAULT_ZOOM_LEVEL, 0f, 0f) },
                 Observable.just(DEFAULT_MAP_LOCATION).delay(200, TimeUnit.MILLISECONDS))
                 .take(1)
