@@ -17,9 +17,9 @@ fun SharedPreferences.rx_getString(key: String, defValue: String?): Observable<S
 
 fun SharedPreferences.rx_getStringSet(key: String, defValue: Set<String>?): Observable<Set<String>?> = Observable.just(getStringSet(key, defValue))
 
-fun <T : Any> SharedPreferences.getObject(key: String, type: Class<T>, defValue: T?) = LoganSquare.parse(getString(key, null), type) ?: defValue
+fun <T : Any> SharedPreferences.getObject(key: String, type: Class<T>, defValue: T?) = getString(key, null).map { LoganSquare.parse(it, type) } ?: defValue
 
-fun <T : Any> SharedPreferences.getObject(key: String, parameterizedType: ParameterizedType<T>, defValue: T?) = LoganSquare.parse(getString(key, null), parameterizedType) ?: defValue
+fun <T : Any> SharedPreferences.getObject(key: String, parameterizedType: ParameterizedType<T>, defValue: T?) = getString(key, null).map { LoganSquare.parse(it, parameterizedType) } ?: defValue
 
 fun <T : Any> SharedPreferences.rx_getObject(key: String, type: Class<T>, defValue: T?) = Observable.just(getObject(key, type, defValue))
 
