@@ -14,7 +14,6 @@ open class KaupunkifillaritApplication : Application() {
 
         if (!BuildConfig.DEBUG) {
             Fabric.with(this, Crashlytics(), Answers())
-            // TODO Timber.plant(new CrashlyticsTree());
         }
 
         inject()
