@@ -9,6 +9,6 @@ import java.util.concurrent.TimeUnit
 
 object RackSetObservable {
     val racks: Observable<Set<Rack>> = Observable.interval(0, 10, TimeUnit.SECONDS).flatMap {
-        "https://kaupunkifillarit.fi/api/stations".httpGet().rx_responseObject(Racks::class.java).map { it.second.racks }.retry()
+        "https://kaupunkifillarit.herokuapp.com/api/stations".httpGet().rx_responseObject(Racks::class.java).map { it.second.racks }.retry()
     }
 }
