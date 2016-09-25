@@ -13,10 +13,8 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.support.annotation.IdRes
 import android.support.v4.app.ActivityCompat
 import android.support.v4.view.GravityCompat
-import android.support.v4.widget.DrawerLayout
 import android.text.method.LinkMovementMethod
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
@@ -522,8 +520,7 @@ class MapActivity : BaseActivity() {
         private val DEFAULT_ZOOM_LEVEL = 15f
         private val DEFAULT_MAP_LOCATION = MapLocation(
                 HELSINKI.latitude, HELSINKI.longitude, DEFAULT_ZOOM_LEVEL, 0f, 0f)
-        @IdRes
-        const val MY_LOCATION_BUTTON_ID = 0x2
+
         private val MY_PERMISSIONS_REQUEST_LOCATION = 1
 
         private val FEEDBACK_ANSWER = "feedback_answer"
