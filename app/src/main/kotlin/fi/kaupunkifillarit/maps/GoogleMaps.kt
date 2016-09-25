@@ -5,11 +5,8 @@ import android.graphics.Bitmap
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
+import fi.kaupunkifillarit.R
 
 import fi.kaupunkifillarit.model.MapLocation
 import rx.Observable
@@ -20,6 +17,8 @@ object GoogleMaps {
         return Observable.create { subscriber: Subscriber<in Maps.MapWrapper<*, *>> ->
             mapFragment.getMapAsync { googleMap ->
                 if (googleMap != null) {
+                    val style = MapStyleOptions.loadRawResourceStyle(mapFragment.activity.applicationContext, R.raw.map_style)
+                    googleMap.setMapStyle(style)
                     subscriber.onNext(MapsWrapper(googleMap))
                 } else {
                     subscriber.onError(NullPointerException("Could not obtain googleMap"))

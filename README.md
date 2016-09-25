@@ -25,6 +25,5 @@ TODO
 ----
 
 * Report initial location to API/GA
-* Use Mapbox to style maps
 * Translate to Swedish
 * Translate to English
