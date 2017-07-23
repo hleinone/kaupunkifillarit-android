@@ -1,13 +1,31 @@
 package fi.kaupunkifillarit
 
 import android.app.Application
+import android.content.SharedPreferences
+import android.preference.PreferenceManager
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
-import fi.kaupunkifillarit.inject.KaupunkifillaritComponent
+import com.google.android.gms.analytics.GoogleAnalytics
+import com.google.android.gms.analytics.Tracker
+import com.google.android.gms.common.GoogleApiAvailability
 import io.fabric.sdk.android.Fabric
 
 open class KaupunkifillaritApplication : Application() {
-    lateinit var component: KaupunkifillaritComponent
+    val sharedPreferences: SharedPreferences by lazy {
+        PreferenceManager.getDefaultSharedPreferences(this)
+    }
+
+    val googleApiAvailability: GoogleApiAvailability by lazy {
+        GoogleApiAvailability.getInstance()
+    }
+
+    open val tracker: Tracker by lazy {
+        GoogleAnalytics.getInstance(this).newTracker(R.xml.tracker)
+    }
+
+    open val answers: Answers by lazy {
+        Answers.getInstance()
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -15,12 +33,5 @@ open class KaupunkifillaritApplication : Application() {
         if (!BuildConfig.DEBUG) {
             Fabric.with(this, Crashlytics(), Answers())
         }
-
-        inject()
-    }
-
-    protected open fun inject() {
-        component = KaupunkifillaritComponent.Initializer.init(this)
-        component.inject(this)
     }
 }

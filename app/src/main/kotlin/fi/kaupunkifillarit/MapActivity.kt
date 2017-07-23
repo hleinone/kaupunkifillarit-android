@@ -6,7 +6,6 @@ import android.app.Dialog
 import android.app.DialogFragment
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.BitmapFactory
@@ -24,11 +23,8 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import com.bluelinelabs.logansquare.LoganSquare
-import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ShareEvent
-import com.google.android.gms.analytics.Tracker
 import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.model.LatLng
 import com.jakewharton.rxbinding.support.v4.widget.drawerOpen
@@ -54,23 +50,10 @@ import rx.lang.kotlin.filterNotNull
 import timber.log.Timber
 import java.io.IOException
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
 class MapActivity : BaseActivity() {
     private var map: Maps.MapWrapper<Maps.MarkerWrapper<*>, Maps.MarkerOptionsWrapper<*>>? = null
     private var mapLocation: MapLocation? = null
-
-    @Inject
-    lateinit var sharedPreferences: SharedPreferences
-
-    @Inject
-    lateinit var googleApiAvailability: GoogleApiAvailability
-
-    @Inject
-    lateinit var tracker: Tracker
-
-    @Inject
-    lateinit var answers: Answers
 
     private var mapInitialized = false
     private var mapMoved = false
@@ -130,7 +113,6 @@ class MapActivity : BaseActivity() {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
-        (application as KaupunkifillaritApplication).component.inject(this)
         MapsInitializer.initialize(application)
         @Suppress("DEPRECATION")
         val primaryDark = resources.getColor(R.color.primary_dark)
@@ -149,17 +131,17 @@ class MapActivity : BaseActivity() {
         @Suppress("DEPRECATION")
         drawer.drawerOpen(GravityCompat.END).bindToLifecycle(this).subscribe { open ->
             if (open) {
-                tracker.send(InfoDrawerEvents.open())
+                app.tracker.send(InfoDrawerEvents.open())
             } else {
-                tracker.send(InfoDrawerEvents.close())
-                if (sharedPreferences.getBoolean(FIRST_RUN, true)) {
+                app.tracker.send(InfoDrawerEvents.close())
+                if (app.sharedPreferences.getBoolean(FIRST_RUN, true)) {
                     if (shouldRequestLocationPermission()) {
                         requestLocationPermissions()
                     }
                 }
             }
         }
-        if (sharedPreferences.getBoolean(FIRST_RUN, true)) {
+        if (app.sharedPreferences.getBoolean(FIRST_RUN, true)) {
             drawer.openDrawer(GravityCompat.END)
         }
     }
@@ -183,10 +165,10 @@ class MapActivity : BaseActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             MY_PERMISSIONS_REQUEST_LOCATION -> {
-                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.isNotEmpty() && grantResults.first() == PackageManager.PERMISSION_GRANTED) {
                     //noinspection MissingPermission
                     map?.myLocationEnabled = true
-                    tracker.send(LocationPermissionsEvents.granted())
+                    app.tracker.send(LocationPermissionsEvents.granted())
                     LastKnownLocationObservable.createObservable(this)
                             .map { location ->
                                 val mapLocation = MapLocation(location.latitude, location.longitude, DEFAULT_ZOOM_LEVEL, 0f, 0f)
@@ -195,9 +177,9 @@ class MapActivity : BaseActivity() {
                             .bindToLifecycle(this)
                             .subscribe { onNext -> map?.animateToMapLocation(onNext) }
                 } else {
-                    tracker.send(LocationPermissionsEvents.denied())
+                    app.tracker.send(LocationPermissionsEvents.denied())
                 }
-                sharedPreferences.edit().putBoolean(FIRST_RUN, false).apply()
+                app.sharedPreferences.edit().putBoolean(FIRST_RUN, false).apply()
             }
         }
     }
@@ -218,22 +200,22 @@ class MapActivity : BaseActivity() {
     }
 
     private fun checkGooglePlayServices() {
-        val resultCode = googleApiAvailability.isGooglePlayServicesAvailable(this)
+        val resultCode = app.googleApiAvailability.isGooglePlayServicesAvailable(this)
         if (resultCode != ConnectionResult.SUCCESS) {
             val mapFragment = fragmentManager.findFragmentById(R.id.map) as CustomMapFragment
             //noinspection ConstantConditions
             mapFragment.view!!.setPadding(0, statusBarHeight, 0, 0)
-            if (googleApiAvailability.isUserResolvableError(resultCode)) {
-                googleApiAvailability.showErrorNotification(this, resultCode)
+            if (app.googleApiAvailability.isUserResolvableError(resultCode)) {
+                app.googleApiAvailability.showErrorNotification(this, resultCode)
             } else {
-                tracker.send(ErrorEvents.playServicesError(googleApiAvailability.getErrorString(resultCode)))
+                app.tracker.send(ErrorEvents.playServicesError(app.googleApiAvailability.getErrorString(resultCode)))
             }
         }
     }
 
     private fun subscribeEverything() {
         Observable.concat(
-                sharedPreferences.rx_getObject(LAST_MAP_LOCATION, MapLocation::class.java, null).filterNotNull(),
+                app.sharedPreferences.rx_getObject(LAST_MAP_LOCATION, MapLocation::class.java, null).filterNotNull(),
                 LastKnownLocationObservable.createObservable(this).map { location -> MapLocation(location.latitude, location.longitude, DEFAULT_ZOOM_LEVEL, 0f, 0f) },
                 Observable.just(DEFAULT_MAP_LOCATION).delay(200, TimeUnit.MILLISECONDS))
                 .take(1)
@@ -247,12 +229,12 @@ class MapActivity : BaseActivity() {
                 .subscribe(racksObserver)
         close_info_drawer.clicks()
                 .bindToLifecycle(this)
-                .subscribe { onClickEvent -> drawer.closeDrawer(GravityCompat.END) }
+                .subscribe { _ -> drawer.closeDrawer(GravityCompat.END) }
         share.clicks()
                 .bindToLifecycle(this)
-                .subscribe { onClickEvent ->
-                    answers.logShare(ShareEvent())
-                    tracker.send(InfoDrawerEvents.shareClick())
+                .subscribe { _ ->
+                    app.answers.logShare(ShareEvent())
+                    app.tracker.send(InfoDrawerEvents.shareClick())
                     val share = Intent(Intent.ACTION_SEND)
                     share.type = "text/plain"
                     share.putExtra(Intent.EXTRA_TEXT, "https://play.google.com/store/apps/details?id=fi.kaupunkifillarit")
@@ -273,7 +255,7 @@ class MapActivity : BaseActivity() {
     override fun onPause() {
         try {
             val json = mapLocation.map { LoganSquare.serialize(it) }
-            sharedPreferences.edit().putString(LAST_MAP_LOCATION, json).apply()
+            app.sharedPreferences.edit().putString(LAST_MAP_LOCATION, json).apply()
         } catch (e: IOException) {
             Timber.w(e, "Storing location failed")
         }
@@ -413,7 +395,7 @@ class MapActivity : BaseActivity() {
         })
         map.setOnMyLocationButtonClickListener(object : Maps.OnMyLocationButtonClickListener {
             override fun onMyLocationButtonClick(): Boolean {
-                tracker.send(MapsEvents.myLocationClick())
+                app.tracker.send(MapsEvents.myLocationClick())
                 return false
             }
         })
@@ -422,7 +404,7 @@ class MapActivity : BaseActivity() {
 
     private inner class FeedbackForm {
         fun start() {
-            val feedBackAnswer = this@MapActivity.sharedPreferences.getInt(FEEDBACK_ANSWER, 0)
+            val feedBackAnswer = this@MapActivity.app.sharedPreferences.getInt(FEEDBACK_ANSWER, 0)
 
             if (shouldDisplayDialog(feedBackAnswer)) {
                 val fm = fragmentManager
@@ -432,7 +414,7 @@ class MapActivity : BaseActivity() {
                     ft.remove(fragment)
                 }
                 FeedbackDialogFragment().show(ft, FEEDBACK_DIALOG_TAG)
-                this@MapActivity.tracker.send(FeedbackEvents.showDialog())
+                this@MapActivity.app.tracker.send(FeedbackEvents.showDialog())
             }
         }
 
@@ -441,11 +423,11 @@ class MapActivity : BaseActivity() {
                 DialogInterface.BUTTON_POSITIVE, DialogInterface.BUTTON_NEGATIVE -> return false
                 DialogInterface.BUTTON_NEUTRAL -> return true
                 else -> {
-                    val useCount = this@MapActivity.sharedPreferences.getLong(USE_COUNT, 0)
+                    val useCount = this@MapActivity.app.sharedPreferences.getLong(USE_COUNT, 0)
                     if (useCount < 6) {
                         return false
                     }
-                    val lastUsed = this@MapActivity.sharedPreferences.getLong(LAST_USED, 0)
+                    val lastUsed = this@MapActivity.app.sharedPreferences.getLong(LAST_USED, 0)
                     val timeSinceLastUse = System.currentTimeMillis() - lastUsed
 
                     return timeSinceLastUse >= TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS) && timeSinceLastUse < TimeUnit.MILLISECONDS.convert(3, TimeUnit.DAYS)
@@ -456,49 +438,44 @@ class MapActivity : BaseActivity() {
 
     class FeedbackDialogFragment : DialogFragment() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            val positiveClick = { dialog: DialogInterface, which: Int ->
-                (activity as MapActivity).sharedPreferences.edit().putInt(MapActivity.FEEDBACK_ANSWER, DialogInterface.BUTTON_POSITIVE).apply()
-                (activity as MapActivity).tracker.send(FeedbackEvents.buttonClick(DialogInterface.BUTTON_POSITIVE))
-                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=fi.kaupunkifillarit")))
-            }
-            val neutralClick = { dialog: DialogInterface, which: Int ->
-                (activity as MapActivity).sharedPreferences.edit().putInt(MapActivity.FEEDBACK_ANSWER, DialogInterface.BUTTON_NEUTRAL).apply()
-                (activity as MapActivity).tracker.send(FeedbackEvents.buttonClick(DialogInterface.BUTTON_NEUTRAL))
-            }
-            val negativeClick = { dialog: DialogInterface, which: Int ->
-                (activity as MapActivity).sharedPreferences.edit().putInt(MapActivity.FEEDBACK_ANSWER, DialogInterface.BUTTON_NEGATIVE).apply()
-                (activity as MapActivity).tracker.send(FeedbackEvents.buttonClick(DialogInterface.BUTTON_NEGATIVE))
-            }
             return android.support.v7.app.AlertDialog.Builder(activity, R.style.AppTheme_AlertDialog)
                     .setTitle(R.string.rating_request_title)
                     .setMessage(R.string.rating_request_message)
-                    .setPositiveButton(R.string.rating_request_rate, positiveClick)
-                    .setNeutralButton(R.string.rating_request_later, neutralClick)
-                    .setNegativeButton(R.string.rating_request_dont_remind, negativeClick)
+                    .setPositiveButton(R.string.rating_request_rate, { _, _ ->
+                        (activity as MapActivity).app.sharedPreferences.edit().putInt(MapActivity.FEEDBACK_ANSWER, DialogInterface.BUTTON_POSITIVE).apply()
+                        (activity as MapActivity).app.tracker.send(FeedbackEvents.buttonClick(DialogInterface.BUTTON_POSITIVE))
+                        activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=fi.kaupunkifillarit")))
+                    })
+                    .setNeutralButton(R.string.rating_request_later, { _, _ ->
+                        (activity as MapActivity).app.sharedPreferences.edit().putInt(MapActivity.FEEDBACK_ANSWER, DialogInterface.BUTTON_NEUTRAL).apply()
+                        (activity as MapActivity).app.tracker.send(FeedbackEvents.buttonClick(DialogInterface.BUTTON_NEUTRAL))
+                    })
+                    .setNegativeButton(R.string.rating_request_dont_remind, { _, _ ->
+                        (activity as MapActivity).app.sharedPreferences.edit().putInt(MapActivity.FEEDBACK_ANSWER, DialogInterface.BUTTON_NEGATIVE).apply()
+                        (activity as MapActivity).app.tracker.send(FeedbackEvents.buttonClick(DialogInterface.BUTTON_NEGATIVE))
+                    })
                     .create()
         }
     }
 
     private inner class UsageLogger {
         fun start() {
-            this@MapActivity.sharedPreferences.edit()
+            this@MapActivity.app.sharedPreferences.edit()
                     .putLong(LAST_USED, System.currentTimeMillis())
-                    .putLong(USE_COUNT, this@MapActivity.sharedPreferences.getLong(USE_COUNT, 0) + 1)
+                    .putLong(USE_COUNT, this@MapActivity.app.sharedPreferences.getLong(USE_COUNT, 0) + 1)
                     .apply()
         }
     }
 
     class LocationPermissionRationaleDialogFragment : DialogFragment() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            val positiveClick = { dialog: DialogInterface, which: Int ->
-                ActivityCompat.requestPermissions(activity,
-                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), MY_PERMISSIONS_REQUEST_LOCATION)
-            }
-
             val dialog = android.support.v7.app.AlertDialog.Builder(activity, R.style.AppTheme_AlertDialog)
                     .setTitle(R.string.location_permission_rationale_title)
                     .setMessage(R.string.location_permission_rationale_message)
-                    .setPositiveButton(R.string.location_permission_rationale_ok, positiveClick)
+                    .setPositiveButton(R.string.location_permission_rationale_ok, { _, _ ->
+                        ActivityCompat.requestPermissions(activity,
+                                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), MY_PERMISSIONS_REQUEST_LOCATION)
+                    })
                     .create()
 
             isCancelable = false

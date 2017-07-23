@@ -5,6 +5,9 @@ import com.trello.rxlifecycle.components.RxActivity
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper
 
 abstract class BaseActivity : RxActivity() {
+    val app: KaupunkifillaritApplication
+        get() = application as KaupunkifillaritApplication
+
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase))
     }
