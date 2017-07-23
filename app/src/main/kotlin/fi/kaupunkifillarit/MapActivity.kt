@@ -27,9 +27,9 @@ import com.crashlytics.android.answers.ShareEvent
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.model.LatLng
-import com.jakewharton.rxbinding.support.v4.widget.drawerOpen
-import com.jakewharton.rxbinding.view.clicks
-import com.trello.rxlifecycle.kotlin.bindToLifecycle
+import com.jakewharton.rxbinding2.support.v4.widget.drawerOpen
+import com.jakewharton.rxbinding2.view.clicks
+import com.trello.rxlifecycle2.kotlin.bindToLifecycle
 import de.psdev.licensesdialog.LicensesDialog
 import fi.kaupunkifillarit.analytics.*
 import fi.kaupunkifillarit.maps.GoogleMaps
@@ -41,12 +41,11 @@ import fi.kaupunkifillarit.model.Rack
 import fi.kaupunkifillarit.rx.RackSetObservable
 import fi.kaupunkifillarit.util.map
 import fi.kaupunkifillarit.util.rx_getObject
+import io.reactivex.Observable
+import io.reactivex.Observer
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_map.*
-import pl.charmas.android.reactivelocation.observables.location.LastKnownLocationObservable
-import rx.Observable
-import rx.Observer
-import rx.android.schedulers.AndroidSchedulers
-import rx.lang.kotlin.filterNotNull
 import timber.log.Timber
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -62,7 +61,10 @@ class MapActivity : BaseActivity() {
     private val rackMarkers = mutableMapOf<String, RackMarker>()
 
     private val lastLocationObserver = object : Observer<MapLocation> {
-        override fun onCompleted() {
+        override fun onSubscribe(p0: Disposable?) {
+        }
+
+        override fun onComplete() {
         }
 
         override fun onError(e: Throwable) {
@@ -81,7 +83,10 @@ class MapActivity : BaseActivity() {
     }
 
     private val racksObserver = object : Observer<Set<Rack>> {
-        override fun onCompleted() {
+        override fun onSubscribe(p0: Disposable?) {
+        }
+
+        override fun onComplete() {
         }
 
         override fun onError(e: Throwable) {
@@ -169,7 +174,7 @@ class MapActivity : BaseActivity() {
                     //noinspection MissingPermission
                     map?.myLocationEnabled = true
                     app.tracker.send(LocationPermissionsEvents.granted())
-                    LastKnownLocationObservable.createObservable(this)
+                    app.rxLocation.location().lastLocation()
                             .map { location ->
                                 val mapLocation = MapLocation(location.latitude, location.longitude, DEFAULT_ZOOM_LEVEL, 0f, 0f)
                                 if (mapLocation.isWithinDesiredMapBounds) mapLocation else DEFAULT_MAP_LOCATION
@@ -215,8 +220,8 @@ class MapActivity : BaseActivity() {
 
     private fun subscribeEverything() {
         Observable.concat(
-                app.sharedPreferences.rx_getObject(LAST_MAP_LOCATION, MapLocation::class.java, null).filterNotNull(),
-                LastKnownLocationObservable.createObservable(this).map { location -> MapLocation(location.latitude, location.longitude, DEFAULT_ZOOM_LEVEL, 0f, 0f) },
+                app.sharedPreferences.rx_getObject(LAST_MAP_LOCATION, MapLocation::class.java, null),
+                app.rxLocation.location().lastLocation().toObservable().map { location -> MapLocation(location.latitude, location.longitude, DEFAULT_ZOOM_LEVEL, 0f, 0f) },
                 Observable.just(DEFAULT_MAP_LOCATION).delay(200, TimeUnit.MILLISECONDS))
                 .take(1)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -242,7 +247,7 @@ class MapActivity : BaseActivity() {
                 }
         info_open_source_licenses.clicks()
                 .bindToLifecycle(this)
-                .subscribe { onClickEvent ->
+                .subscribe { _ ->
                     LicensesDialog.Builder(this)
                             .setTitle(R.string.open_source_licenses)
                             .setCloseText(R.string.close)
@@ -278,7 +283,7 @@ class MapActivity : BaseActivity() {
                 val next = onNext as Maps.MapWrapper<Maps.MarkerWrapper<*>, Maps.MarkerOptionsWrapper<*>>
                 this@MapActivity.map = next
                 setUpMap()
-                mapFragment.setOnTouchListener(View.OnTouchListener { view, motionEvent ->
+                mapFragment.setOnTouchListener(View.OnTouchListener { _, motionEvent ->
                     when (motionEvent.action) {
                         MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> touching = false
                         else -> touching = true

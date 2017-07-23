@@ -1,7 +1,7 @@
 package fi.kaupunkifillarit
 
 import android.content.Context
-import com.trello.rxlifecycle.components.RxActivity
+import com.trello.rxlifecycle2.components.RxActivity
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper
 
 abstract class BaseActivity : RxActivity() {

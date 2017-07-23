@@ -9,19 +9,19 @@ import com.google.android.gms.maps.model.*
 import fi.kaupunkifillarit.R
 
 import fi.kaupunkifillarit.model.MapLocation
-import rx.Observable
-import rx.Subscriber
+import io.reactivex.Observable
+import io.reactivex.ObservableEmitter
 
 object GoogleMaps {
     fun create(mapFragment: MapFragment): Observable<Maps.MapWrapper<*, *>> {
-        return Observable.create { subscriber: Subscriber<in Maps.MapWrapper<*, *>> ->
+        return Observable.create { source: ObservableEmitter<in Maps.MapWrapper<*, *>> ->
             mapFragment.getMapAsync { googleMap ->
                 if (googleMap != null) {
                     val style = MapStyleOptions.loadRawResourceStyle(mapFragment.activity.applicationContext, R.raw.map_style)
                     googleMap.setMapStyle(style)
-                    subscriber.onNext(MapsWrapper(googleMap))
+                    source.onNext(MapsWrapper(googleMap))
                 } else {
-                    subscriber.onError(NullPointerException("Could not obtain googleMap"))
+                    source.onError(NullPointerException("Could not obtain googleMap"))
                 }
             }
         }
