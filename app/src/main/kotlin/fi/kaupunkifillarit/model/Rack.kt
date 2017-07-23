@@ -15,8 +15,6 @@ class Rack {
     var longitude: Double = 0.0
     @JsonField(name = arrayOf("bikesAvailable"))
     var bikes: Int = 0
-    @JsonField(name = arrayOf("spacesAvailable"))
-    var spaces: Int = 0
 
     constructor() {
     }
@@ -25,18 +23,13 @@ class Rack {
                 name: String,
                 latitude: Double,
                 longitude: Double,
-                bikes: Int,
-                spaces: Int) {
+                bikes: Int) {
         this.id = id
         this.name = name
         this.latitude = latitude
         this.longitude = longitude
         this.bikes = bikes
-        this.spaces = spaces
     }
-
-    val slots: Int
-        get() = bikes + spaces
 
     override fun equals(o: Any?): Boolean {
         if (this === o) return true

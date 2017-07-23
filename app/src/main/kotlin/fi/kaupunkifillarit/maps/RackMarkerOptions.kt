@@ -11,11 +11,11 @@ class RackMarkerOptions {
     constructor(rack: Rack, res: Resources, map: Maps.MapWrapper<Maps.MarkerWrapper<*>, Maps.MarkerOptionsWrapper<*>>) {
         this.status = map.createMarkerOptions().icon(getMarkerBitmap(
                 rack.bikes < 2,
-                "${rack.bikes}/${rack.slots}",
+                "${rack.bikes}",
                 res)).flat(false).position(rack.latitude, rack.longitude).anchor(0.5f, 1f)
     }
 
-    private fun getMarkerBitmap(empty: Boolean, text: String, res: Resources): Bitmap {
+    private fun getMarkerBitmap(isEmpty: Boolean, text: String, res: Resources): Bitmap {
         val regular = Typeface.createFromAsset(res.assets, "fonts/Montserrat-Regular.ttf")
         val paint = Paint()
         paint.typeface = regular
@@ -23,7 +23,7 @@ class RackMarkerOptions {
         paint.color = Color.BLACK
         paint.textAlign = Paint.Align.CENTER
         paint.isAntiAlias = true
-        val marker = BitmapFactory.decodeResource(res, if (empty) R.drawable.rack_marker_empty else R.drawable.rack_marker)
+        val marker = BitmapFactory.decodeResource(res, if (isEmpty) R.drawable.rack_marker_empty else R.drawable.rack_marker)
         val bitmap = Bitmap.createBitmap(marker.width, marker.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         canvas.drawBitmap(marker, 0f, 0f, null)
