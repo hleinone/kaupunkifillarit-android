@@ -11,7 +11,6 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.patloew.rxlocation.RxLocation
 import io.fabric.sdk.android.Fabric
 
-
 open class KaupunkifillaritApplication : Application() {
     val sharedPreferences: SharedPreferences by lazy {
         PreferenceManager.getDefaultSharedPreferences(this)

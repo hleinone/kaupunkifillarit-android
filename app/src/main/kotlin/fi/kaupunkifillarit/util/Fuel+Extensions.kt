@@ -18,26 +18,20 @@ fun <T : Any> Request.rx_responseObject(type: Class<T>) = rx_responseObject(Loga
 
 fun <T : Any> Request.rx_object(type: Class<T>) = rx_object(LoganSquareClassResponseDeserializer(type))
 
-fun <T : Any> Request.responseObject(parameterizedType: ParameterizedType<T>, handler: (Request, Response, Result<T, FuelError>) -> Unit) = responseObject(LoganSquareParamenterizedTypeResponseDeserializer(parameterizedType), handler)
+fun <T : Any> Request.responseObject(parameterizedType: ParameterizedType<T>, handler: (Request, Response, Result<T, FuelError>) -> Unit) = responseObject(LoganSquareParameterizedTypeResponseDeserializer(parameterizedType), handler)
 
-fun <T : Any> Request.responseObject(parameterizedType: ParameterizedType<T>, handler: Handler<T>) = responseObject(LoganSquareParamenterizedTypeResponseDeserializer(parameterizedType), handler)
+fun <T : Any> Request.responseObject(parameterizedType: ParameterizedType<T>, handler: Handler<T>) = responseObject(LoganSquareParameterizedTypeResponseDeserializer(parameterizedType), handler)
 
-fun <T : Any> Request.responseObject(parameterizedType: ParameterizedType<T>) = responseObject(LoganSquareParamenterizedTypeResponseDeserializer(parameterizedType))
+fun <T : Any> Request.responseObject(parameterizedType: ParameterizedType<T>) = responseObject(LoganSquareParameterizedTypeResponseDeserializer(parameterizedType))
 
-fun <T : Any> Request.rx_responseObject(parameterizedType: ParameterizedType<T>) = rx_responseObject(LoganSquareParamenterizedTypeResponseDeserializer(parameterizedType))
+fun <T : Any> Request.rx_responseObject(parameterizedType: ParameterizedType<T>) = rx_responseObject(LoganSquareParameterizedTypeResponseDeserializer(parameterizedType))
 
-fun <T : Any> Request.rx_object(parameterizedType: ParameterizedType<T>) = rx_object(LoganSquareParamenterizedTypeResponseDeserializer(parameterizedType))
+fun <T : Any> Request.rx_object(parameterizedType: ParameterizedType<T>) = rx_object(LoganSquareParameterizedTypeResponseDeserializer(parameterizedType))
 
 /**
  * Parses Fuel responses to the desired object type using LoganSquare.
  */
-private class LoganSquareClassResponseDeserializer<T : Any> : ResponseDeserializable<T> {
-    private val type: Class<T>
-
-    constructor(type: Class<T>) {
-        this.type = type
-    }
-
+private class LoganSquareClassResponseDeserializer<out T : Any>(private val type: Class<T>) : ResponseDeserializable<T> {
     override fun deserialize(inputStream: InputStream): T? {
         return LoganSquare.parse(inputStream, type)
     }
@@ -46,13 +40,7 @@ private class LoganSquareClassResponseDeserializer<T : Any> : ResponseDeserializ
 /**
  * Parses Fuel responses to the desired object type using LoganSquare.
  */
-private class LoganSquareParamenterizedTypeResponseDeserializer<T : Any> : ResponseDeserializable<T> {
-    private val parameterizedType: ParameterizedType<T>
-
-    constructor(parameterizedType: ParameterizedType<T>) {
-        this.parameterizedType = parameterizedType
-    }
-
+private class LoganSquareParameterizedTypeResponseDeserializer<out T : Any>(private val parameterizedType: ParameterizedType<T>) : ResponseDeserializable<T> {
     override fun deserialize(inputStream: InputStream): T? {
         return LoganSquare.parse(inputStream, parameterizedType)
     }

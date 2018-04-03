@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="location_permission_rationale_title">Sijainnin käyttöoikeudet</string>
-    <string name="location_permission_rationale_message">Kaupunkifillarit.fi käyttää laitteen sijaintia kartan keskittämiseen. Sovellus toimii myös ilman sijaintioikeuksia. Voit muuttaa valintaasi myöhemmin sovellusasetuksista: Asetukset › Sovellukset › Kaupunkifillarit › Käyttöluvat.</string>
+    <string name="location_permission_rationale_message">Kaupunkifillarit.fi käyttää laitteen sijaintia kartan keskittämiseen. Sovellus toimii myös ilman sijaintioikeuksia.\n\nVoit muuttaa valintaasi myöhemmin sovellusasetuksista: Asetukset › Sovellukset › Kaupunkifillarit › Käyttöluvat.</string>
     <string name="location_permission_rationale_ok">OK</string>
 </resources>

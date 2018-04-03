@@ -1,5 +1,6 @@
 package fi.kaupunkifillarit.model
 
+import android.location.Location
 import com.bluelinelabs.logansquare.annotation.JsonField
 import com.bluelinelabs.logansquare.annotation.JsonObject
 
@@ -16,8 +17,7 @@ class MapLocation {
     @JsonField
     var tilt: Float = 0f
 
-    constructor() {
-    }
+    constructor()
 
     constructor(latitude: Double,
                 longitude: Double,
@@ -46,4 +46,11 @@ class MapLocation {
                 ", tilt=" + tilt +
                 '}'
     }
+}
+
+fun Location.isWithinDesiredMapBounds(): Boolean {
+    return latitude > 60.139118 &&
+            latitude < 60.229646 &&
+            longitude > 24.689006 &&
+            longitude < 25.017768
 }

@@ -1,34 +1,26 @@
 package fi.kaupunkifillarit.maps
 
 import android.graphics.Bitmap
-
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapFragment
 import com.google.android.gms.maps.model.*
 import fi.kaupunkifillarit.R
-
 import fi.kaupunkifillarit.model.MapLocation
-import io.reactivex.Observable
-import io.reactivex.ObservableEmitter
+import fi.kaupunkifillarit.rx.rx_getMapAsync
+import io.reactivex.Single
 
 object GoogleMaps {
-    fun create(mapFragment: MapFragment): Observable<Maps.MapWrapper<*, *>> {
-        return Observable.create { source: ObservableEmitter<in Maps.MapWrapper<*, *>> ->
-            mapFragment.getMapAsync { googleMap ->
-                if (googleMap != null) {
+    fun create(mapFragment: MapFragment): Single<Maps.MapWrapper<*, *>> {
+        return mapFragment.rx_getMapAsync()
+                .doOnSuccess { googleMap ->
                     val style = MapStyleOptions.loadRawResourceStyle(mapFragment.activity.applicationContext, R.raw.map_style)
                     googleMap.setMapStyle(style)
-                    source.onNext(MapsWrapper(googleMap))
-                } else {
-                    source.onError(NullPointerException("Could not obtain googleMap"))
                 }
-            }
-        }
+                .map { MapsWrapper(it) }
     }
 
-    class MapsWrapper : Maps.MapWrapper<MarkerWrapper, MarkerOptionsWrapper> {
-        private val googleMap: GoogleMap
+    class MapsWrapper(private val googleMap: GoogleMap) : Maps.MapWrapper<MarkerWrapper, MarkerOptionsWrapper> {
 
         override var myLocationEnabled: Boolean
             get() = googleMap.isMyLocationEnabled
@@ -42,10 +34,6 @@ object GoogleMaps {
             set(value) {
                 googleMap.isTrafficEnabled = value
             }
-
-        constructor(googleMap: GoogleMap) {
-            this.googleMap = googleMap
-        }
 
         override fun animateToMapLocation(mapLocation: MapLocation) {
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition.Builder().target(LatLng(mapLocation.latitude, mapLocation.longitude)).zoom(mapLocation.zoom).bearing(mapLocation.bearing).tilt(mapLocation.tilt).build()))

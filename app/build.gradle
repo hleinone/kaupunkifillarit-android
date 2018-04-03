@@ -2,7 +2,7 @@ apply plugin: "com.android.application"
 apply plugin: "kotlin-android"
 apply plugin: "kotlin-android-extensions"
 apply plugin: "io.fabric"
-apply plugin: "build-time-tracker"
+apply plugin: "kotlin-kapt"
 
 task askForPasswords << {
     android.signingConfigs.release.storeFile = file(STORE)
@@ -26,8 +26,7 @@ tasks.withType(com.android.build.gradle.tasks.PackageApplication).whenTaskAdded 
 }
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.0"
+    compileSdkVersion 27
 
     def Properties versionProps = new Properties()
     versionProps.load(new FileInputStream(file("version.properties")))
@@ -35,7 +34,7 @@ android {
     defaultConfig {
         applicationId "fi.kaupunkifillarit"
         minSdkVersion 17
-        targetSdkVersion 25
+        targetSdkVersion 27
         versionCode code.toInteger()
         versionName versionProps["name"]
     }
@@ -69,8 +68,6 @@ android {
     sourceSets {
         main.java.srcDirs += "src/main/kotlin"
         debug.java.srcDirs += "src/debug/kotlin"
-        //androidTest.java.srcDirs += "src/androidTest/kotlin"
-        //test.java.srcDirs += "src/test/kotlin"
     }
 
     packagingOptions {
@@ -78,6 +75,7 @@ android {
         exclude "META-INF/LICENSE.txt"
         exclude "META-INF/NOTICE"
         exclude "META-INF/NOTICE.txt"
+        exclude "META-INF/app_debug.kotlin_module"
     }
 
     lintOptions {
@@ -86,63 +84,43 @@ android {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "com.google.android.gms:play-services-maps:11.0.4"
-    compile "com.google.android.gms:play-services-location:11.0.4"
-    compile "com.google.android.gms:play-services-analytics:11.0.4"
-    compile "com.android.support:appcompat-v7:25.3.1"
-    compile "com.android.support:design:25.3.1"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "com.google.android.gms:play-services-maps:$gms_version"
+    implementation "com.google.android.gms:play-services-location:$gms_version"
+    implementation "com.google.android.gms:play-services-analytics:$gms_version"
+    implementation "com.android.support:appcompat-v7:$support_version"
+    implementation "com.android.support:design:$support_version"
 
-    compile "com.bluelinelabs:logansquare:1.3.7"
+    implementation "com.bluelinelabs:logansquare:1.3.7"
     kapt "com.bluelinelabs:logansquare-compiler:1.3.7"
 
-    compile "io.reactivex.rxjava2:rxkotlin:2.1.0"
-    compile "io.reactivex.rxjava2:rxandroid:2.0.1"
-    compile "com.trello.rxlifecycle2:rxlifecycle:2.1.0"
-    compile "com.trello.rxlifecycle2:rxlifecycle-android:2.1.0"
-    compile "com.trello.rxlifecycle2:rxlifecycle-components:2.1.0"
-    compile "com.trello.rxlifecycle2:rxlifecycle-kotlin:2.1.0"
-    compile "com.jakewharton.rxbinding2:rxbinding-kotlin:2.0.0"
-    compile "com.jakewharton.rxbinding2:rxbinding-support-v4-kotlin:2.0.0"
-    compile "com.patloew.rxlocation:rxlocation:1.0.3"
+    implementation "io.reactivex.rxjava2:rxkotlin:2.1.0"
+    implementation "io.reactivex.rxjava2:rxandroid:2.0.1"
+    implementation "com.trello.rxlifecycle2:rxlifecycle:$rxlifecycle_version"
+    implementation "com.trello.rxlifecycle2:rxlifecycle-android:$rxlifecycle_version"
+    implementation "com.trello.rxlifecycle2:rxlifecycle-components:$rxlifecycle_version"
+    implementation "com.trello.rxlifecycle2:rxlifecycle-kotlin:$rxlifecycle_version"
+    implementation "com.jakewharton.rxbinding2:rxbinding-kotlin:2.0.0"
+    implementation "com.jakewharton.rxbinding2:rxbinding-support-v4-kotlin:2.0.0"
+    implementation "com.patloew.rxlocation:rxlocation:1.0.3"
+    implementation "com.tbruyelle.rxpermissions2:rxpermissions:0.9.4"
 
-    compile "com.github.kittinunf.fuel:fuel:1.9.0"
-    compile "com.github.kittinunf.fuel:fuel-android:1.9.0"
-    compile "com.github.kittinunf.fuel:fuel-rxjava:1.9.0"
+    implementation "com.github.kittinunf.fuel:fuel:1.9.0"
+    implementation "com.github.kittinunf.fuel:fuel-android:1.9.0"
+    implementation "com.github.kittinunf.fuel:fuel-rxjava:1.9.0"
 
-    compile "com.jakewharton.timber:timber:4.5.1"
-    compile "com.crashlytics.sdk.android:crashlytics:2.6.8"
-    compile "com.crashlytics.sdk.android:answers:1.3.13"
-    compile "uk.co.chrisjenx:calligraphy:2.2.0"
-    compile "de.psdev.licensesdialog:licensesdialog:1.8.2"
-}
-
-kapt {
-    generateStubs = true
-}
-
-buildtimetracker {
-    reporters {
-        csv {
-            output "build/times.csv"
-            append true
-            header false
-        }
-
-        summary {
-            ordered false
-            threshold 50
-            barstyle "unicode"
-        }
-
-        csvSummary {
-            csv "build/times.csv"
-        }
-    }
+    implementation "com.jakewharton.timber:timber:4.5.1"
+    implementation "com.crashlytics.sdk.android:crashlytics:2.9.1"
+    implementation "com.crashlytics.sdk.android:answers:1.4.1"
+    implementation "uk.co.chrisjenx:calligraphy:2.2.0"
+    implementation "de.psdev.licensesdialog:licensesdialog:1.8.2"
 }
 
 buildscript {
-    ext.kotlin_version = "1.1.3-2"
+    ext.kotlin_version = "1.2.31"
+    ext.support_version = "27.1.0"
+    ext.gms_version = "12.0.1"
+    ext.rxlifecycle_version = "2.2.0"
 
     repositories {
         jcenter()

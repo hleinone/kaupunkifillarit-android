@@ -37,14 +37,12 @@ import fi.kaupunkifillarit.maps.Maps
 import fi.kaupunkifillarit.maps.RackMarker
 import fi.kaupunkifillarit.maps.RackMarkerOptions
 import fi.kaupunkifillarit.model.MapLocation
-import fi.kaupunkifillarit.model.Rack
-import fi.kaupunkifillarit.rx.RackSetObservable
-import fi.kaupunkifillarit.util.map
+import fi.kaupunkifillarit.rx.Api
+import fi.kaupunkifillarit.util.BaseActivity
+import fi.kaupunkifillarit.util.app
 import fi.kaupunkifillarit.util.rx_getObject
 import io.reactivex.Observable
-import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_map.*
 import timber.log.Timber
 import java.io.IOException
@@ -59,57 +57,6 @@ class MapActivity : BaseActivity() {
     private var touching = false
 
     private val rackMarkers = mutableMapOf<String, RackMarker>()
-
-    private val lastLocationObserver = object : Observer<MapLocation> {
-        override fun onSubscribe(p0: Disposable?) {
-        }
-
-        override fun onComplete() {
-        }
-
-        override fun onError(e: Throwable) {
-            Timber.e(e, "Location fetching failed")
-            if (!mapMoved) {
-                map?.animateToMapLocation(DEFAULT_MAP_LOCATION)
-            }
-        }
-
-        override fun onNext(mapLocation: MapLocation) {
-            if (this@MapActivity.mapLocation == null && !mapMoved && mapLocation.isWithinDesiredMapBounds) {
-                this@MapActivity.mapLocation = mapLocation
-                map?.animateToMapLocation(mapLocation)
-            }
-        }
-    }
-
-    private val racksObserver = object : Observer<Set<Rack>> {
-        override fun onSubscribe(p0: Disposable?) {
-        }
-
-        override fun onComplete() {
-        }
-
-        override fun onError(e: Throwable) {
-            Timber.e(e, "Rack retrieval failed")
-        }
-
-        override fun onNext(update: Set<Rack>) {
-            if (touching) {
-                return
-            }
-
-            synchronized(this@MapActivity) {
-                for (rack in update) {
-                    if (rackMarkers.contains(rack.id)) {
-                        rackMarkers[rack.id]?.update(rack)
-                    } else {
-                        rackMarkers[rack.id] = RackMarkerOptions(rack,
-                                resources, map!!).makeMarker(map!!)
-                    }
-                }
-            }
-        }
-    }
 
     lateinit private var feedbackForm: FeedbackForm
     lateinit private var usageLogger: UsageLogger
@@ -220,18 +167,45 @@ class MapActivity : BaseActivity() {
 
     private fun subscribeEverything() {
         Observable.concat(
-                app.sharedPreferences.rx_getObject(LAST_MAP_LOCATION, MapLocation::class.java, null),
+                app.sharedPreferences.rx_getObject(LAST_MAP_LOCATION, MapLocation::class.java).toObservable(),
                 app.rxLocation.location().lastLocation().toObservable().map { location -> MapLocation(location.latitude, location.longitude, DEFAULT_ZOOM_LEVEL, 0f, 0f) },
                 Observable.just(DEFAULT_MAP_LOCATION).delay(200, TimeUnit.MILLISECONDS))
                 .take(1)
                 .observeOn(AndroidSchedulers.mainThread())
                 .bindToLifecycle(this)
-                .subscribe(lastLocationObserver)
+                .subscribe({ next ->
+                    if (this@MapActivity.mapLocation == null && !mapMoved && next.isWithinDesiredMapBounds) {
+                        this@MapActivity.mapLocation = next
+                        map?.animateToMapLocation(next)
+                    }
+                }, { error ->
+                    Timber.e(error, "Location fetching failed")
+                    if (!mapMoved) {
+                        map?.animateToMapLocation(DEFAULT_MAP_LOCATION)
+                    }
+                })
 
-        RackSetObservable.racks
+        Api.racks
                 .observeOn(AndroidSchedulers.mainThread())
                 .bindToLifecycle(this)
-                .subscribe(racksObserver)
+                .subscribe({ next ->
+                    if (touching) {
+                        return@subscribe
+                    }
+
+                    synchronized(this@MapActivity) {
+                        for (rack in next) {
+                            if (rackMarkers.contains(rack.id)) {
+                                rackMarkers[rack.id]?.update(rack)
+                            } else {
+                                rackMarkers[rack.id] = RackMarkerOptions(rack,
+                                        resources, map!!).makeMarker(map!!)
+                            }
+                        }
+                    }
+                }, { error ->
+                    Timber.e(error, "Rack retrieval failed")
+                })
         close_info_drawer.clicks()
                 .bindToLifecycle(this)
                 .subscribe { _ -> drawer.closeDrawer(GravityCompat.END) }
@@ -259,7 +233,7 @@ class MapActivity : BaseActivity() {
 
     override fun onPause() {
         try {
-            val json = mapLocation.map { LoganSquare.serialize(it) }
+            val json = mapLocation?.let { LoganSquare.serialize(it) }
             app.sharedPreferences.edit().putString(LAST_MAP_LOCATION, json).apply()
         } catch (e: IOException) {
             Timber.w(e, "Storing location failed")
@@ -377,7 +351,8 @@ class MapActivity : BaseActivity() {
             }
         })
         if (!mapMoved) {
-            map.animateToMapLocation(if (mapLocation?.isWithinDesiredMapBounds ?: false) mapLocation!! else DEFAULT_MAP_LOCATION)
+            map.animateToMapLocation(if (mapLocation?.isWithinDesiredMapBounds
+                            ?: false) mapLocation!! else DEFAULT_MAP_LOCATION)
         }
         map.setOnMapLocationChangeListener(object : Maps.OnMapLocationChangeListener {
             override fun onMapLocationChange(mapLocation: MapLocation) {

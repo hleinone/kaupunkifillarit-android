@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <notices>
     <notice>
-        <name>Dagger</name>
-        <url>http://google.github.io/dagger/</url>
-        <copyright>Copyright 2012 Square, Inc.&lt;br/&gt;Copyright 2012 Google, Inc.</copyright>
-        <license>Apache Software License 2.0</license>
-    </notice>
-    <notice>
         <name>LoganSquare</name>
         <url>https://github.com/bluelinelabs/LoganSquare</url>
         <copyright>Copyright 2015 BlueLine Labs, Inc.</copyright>
@@ -37,9 +31,15 @@
         <license>Apache Software License 2.0</license>
     </notice>
     <notice>
-        <name>Android-ReactiveLocation</name>
-        <url>https://github.com/mcharmas/Android-ReactiveLocation</url>
-        <copyright>Copyright (C) 2015 Michał Charmas (http://blog.charmas.pl)</copyright>
+        <name>RxLocation</name>
+        <url>https://github.com/patloew/RxLocation</url>
+        <copyright>Copyright 2016 Patrick Löwenstein</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>RxPermissions</name>
+        <url>https://github.com/tbruyelle/RxPermissions</url>
+        <copyright />
         <license>Apache Software License 2.0</license>
     </notice>
     <notice>
