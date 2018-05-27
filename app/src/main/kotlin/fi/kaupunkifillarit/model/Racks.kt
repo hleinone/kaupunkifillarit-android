@@ -1,17 +1,9 @@
 package fi.kaupunkifillarit.model
 
-import com.bluelinelabs.logansquare.annotation.JsonField
-import com.bluelinelabs.logansquare.annotation.JsonObject
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-@JsonObject
-class Racks {
-    @JsonField(name = arrayOf("bikeRentalStations"))
-    var racks: Set<Rack> = emptySet()
-
-    constructor() {
-    }
-
-    constructor(racks: Set<Rack>) {
-        this.racks = racks
-    }
-}
+@Serializable
+data class Racks(
+        @SerialName("bikeRentalStations")
+        val racks: Set<Rack>)

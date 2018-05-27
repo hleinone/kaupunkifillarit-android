@@ -1,10 +1,10 @@
 package fi.kaupunkifillarit.util
 
 import android.content.SharedPreferences
-import com.bluelinelabs.logansquare.LoganSquare
-import com.bluelinelabs.logansquare.ParameterizedType
 import io.reactivex.Maybe
 import io.reactivex.Single
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.JSON
 
 fun SharedPreferences.rx_getBoolean(key: String, defValue: Boolean): Single<Boolean> = Single.just(getBoolean(key, defValue))
 
@@ -32,27 +32,16 @@ fun SharedPreferences.rx_getStringSet(key: String): Maybe<Set<String>> = Maybe.c
     maybeEmitter.onComplete()
 }
 
-fun <T : Any> SharedPreferences.getObject(key: String, type: Class<T>, defValue: T?) = getString(key, null)?.let { LoganSquare.parse(it, type) }
-        ?: defValue
+fun <T : Any> SharedPreferences.getObject(key: String, deserializer: KSerializer<T>, defValue: T?) =
+        getString(key, null)?.let { JSON.parse(deserializer, it) } ?: defValue
 
-fun <T : Any> SharedPreferences.getObject(key: String, parameterizedType: ParameterizedType<T>, defValue: T?) = getString(key, null)?.let { LoganSquare.parse(it, parameterizedType) }
-        ?: defValue
+fun <T : Any> SharedPreferences.Editor.putObject(key: String, serializer: KSerializer<T>, value: T) =
+        putString(key, JSON.stringify(serializer, value))
 
-fun <T : Any> SharedPreferences.Editor.putObject(key: String, value: T) = putString(key, LoganSquare.serialize(value))
+fun <T : Any> SharedPreferences.rx_getObject(key: String, deserializer: KSerializer<T>, defValue: T): Single<T> = Single.just(getObject(key, deserializer, defValue))
 
-fun <T : Any> SharedPreferences.rx_getObject(key: String, type: Class<T>, defValue: T): Single<T> = Single.just(getObject(key, type, defValue))
-
-fun <T : Any> SharedPreferences.rx_getObject(key: String, parameterizedType: ParameterizedType<T>, defValue: T): Single<T> = Single.just(getObject(key, parameterizedType, defValue))
-
-fun <T : Any> SharedPreferences.rx_getObject(key: String, type: Class<T>): Maybe<T> = Maybe.create { maybeEmitter ->
-    getObject(key, type, null)?.let {
-        maybeEmitter.onSuccess(it)
-    }
-    maybeEmitter.onComplete()
-}
-
-fun <T : Any> SharedPreferences.rx_getObject(key: String, parameterizedType: ParameterizedType<T>): Maybe<T> = Maybe.create { maybeEmitter ->
-    getObject(key, parameterizedType, null)?.let {
+fun <T : Any> SharedPreferences.rx_getObject(key: String, deserializer: KSerializer<T>): Maybe<T> = Maybe.create { maybeEmitter ->
+    getObject(key, deserializer, null)?.let {
         maybeEmitter.onSuccess(it)
     }
     maybeEmitter.onComplete()

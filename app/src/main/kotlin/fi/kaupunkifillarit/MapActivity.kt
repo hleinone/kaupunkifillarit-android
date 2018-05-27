@@ -1,6 +1,7 @@
 package fi.kaupunkifillarit
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.Dialog
 import android.app.DialogFragment
@@ -22,7 +23,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
-import com.bluelinelabs.logansquare.LoganSquare
 import com.crashlytics.android.answers.ShareEvent
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.maps.MapsInitializer
@@ -40,10 +40,12 @@ import fi.kaupunkifillarit.model.MapLocation
 import fi.kaupunkifillarit.rx.Api
 import fi.kaupunkifillarit.util.BaseActivity
 import fi.kaupunkifillarit.util.app
+import fi.kaupunkifillarit.util.putObject
 import fi.kaupunkifillarit.util.rx_getObject
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_map.*
+import kotlinx.serialization.serializer
 import timber.log.Timber
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -114,6 +116,7 @@ class MapActivity : BaseActivity() {
         }
     }
 
+    @SuppressLint("MissingPermission")
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             MY_PERMISSIONS_REQUEST_LOCATION -> {
@@ -123,8 +126,7 @@ class MapActivity : BaseActivity() {
                     app.tracker.send(LocationPermissionsEvents.granted())
                     app.rxLocation.location().lastLocation()
                             .map { location ->
-                                val mapLocation = MapLocation(location.latitude, location.longitude, DEFAULT_ZOOM_LEVEL, 0f, 0f)
-                                if (mapLocation.isWithinDesiredMapBounds) mapLocation else DEFAULT_MAP_LOCATION
+                                MapLocation(location.latitude, location.longitude, DEFAULT_ZOOM_LEVEL, 0f, 0f)
                             }
                             .bindToLifecycle(this)
                             .subscribe { onNext -> map?.animateToMapLocation(onNext) }
@@ -165,16 +167,17 @@ class MapActivity : BaseActivity() {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun subscribeEverything() {
         Observable.concat(
-                app.sharedPreferences.rx_getObject(LAST_MAP_LOCATION, MapLocation::class.java).toObservable(),
+                app.sharedPreferences.rx_getObject(LAST_MAP_LOCATION, MapLocation::class.serializer()).toObservable(),
                 app.rxLocation.location().lastLocation().toObservable().map { location -> MapLocation(location.latitude, location.longitude, DEFAULT_ZOOM_LEVEL, 0f, 0f) },
                 Observable.just(DEFAULT_MAP_LOCATION).delay(200, TimeUnit.MILLISECONDS))
                 .take(1)
                 .observeOn(AndroidSchedulers.mainThread())
                 .bindToLifecycle(this)
                 .subscribe({ next ->
-                    if (this@MapActivity.mapLocation == null && !mapMoved && next.isWithinDesiredMapBounds) {
+                    if (this@MapActivity.mapLocation == null && !mapMoved) {
                         this@MapActivity.mapLocation = next
                         map?.animateToMapLocation(next)
                     }
@@ -233,8 +236,9 @@ class MapActivity : BaseActivity() {
 
     override fun onPause() {
         try {
-            val json = mapLocation?.let { LoganSquare.serialize(it) }
-            app.sharedPreferences.edit().putString(LAST_MAP_LOCATION, json).apply()
+            if (mapLocation != null) {
+                app.sharedPreferences.edit().putObject(LAST_MAP_LOCATION, MapLocation::class.serializer(), mapLocation!!).apply()
+            }
         } catch (e: IOException) {
             Timber.w(e, "Storing location failed")
         }
@@ -268,7 +272,7 @@ class MapActivity : BaseActivity() {
         }
     }
 
-    val statusBarHeight: Int
+    private val statusBarHeight: Int
         get() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
@@ -351,8 +355,7 @@ class MapActivity : BaseActivity() {
             }
         })
         if (!mapMoved) {
-            map.animateToMapLocation(if (mapLocation?.isWithinDesiredMapBounds
-                            ?: false) mapLocation!! else DEFAULT_MAP_LOCATION)
+            map.animateToMapLocation(mapLocation ?: DEFAULT_MAP_LOCATION)
         }
         map.setOnMapLocationChangeListener(object : Maps.OnMapLocationChangeListener {
             override fun onMapLocationChange(mapLocation: MapLocation) {
@@ -360,16 +363,7 @@ class MapActivity : BaseActivity() {
                     mapInitialized = true
                 } else {
                     mapMoved = true
-                    if (this@MapActivity.mapLocation == null) {
-                        this@MapActivity.mapLocation = mapLocation
-                    } else {
-                        val oldMapLocation = this@MapActivity.mapLocation!!
-                        oldMapLocation.latitude = mapLocation.latitude
-                        oldMapLocation.longitude = mapLocation.longitude
-                        oldMapLocation.zoom = mapLocation.zoom
-                        oldMapLocation.bearing = mapLocation.bearing
-                        oldMapLocation.tilt = mapLocation.tilt
-                    }
+                    this@MapActivity.mapLocation = mapLocation
                 }
             }
         })

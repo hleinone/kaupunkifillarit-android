@@ -1,35 +1,20 @@
 package fi.kaupunkifillarit.model
 
-import com.bluelinelabs.logansquare.annotation.JsonField
-import com.bluelinelabs.logansquare.annotation.JsonObject
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-@JsonObject
-class Rack {
-    @JsonField
-    var id: String = ""
-    @JsonField
-    var name: String = ""
-    @JsonField(name = arrayOf("lat"))
-    var latitude: Double = 0.0
-    @JsonField(name = arrayOf("lon"))
-    var longitude: Double = 0.0
-    @JsonField(name = arrayOf("bikesAvailable"))
-    var bikes: Int = 0
-
-    constructor() {
-    }
-
-    constructor(id: String,
-                name: String,
-                latitude: Double,
-                longitude: Double,
-                bikes: Int) {
-        this.id = id
-        this.name = name
-        this.latitude = latitude
-        this.longitude = longitude
-        this.bikes = bikes
-    }
+@Serializable
+data class Rack(
+        @SerialName("id")
+        val id: String,
+        @SerialName("name")
+        val name: String,
+        @SerialName("lat")
+        val latitude: Double,
+        @SerialName("lon")
+        val longitude: Double,
+        @SerialName("bikesAvailable")
+        val bikes: Int) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

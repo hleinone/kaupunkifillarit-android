@@ -57,9 +57,15 @@
    long consumerNode;
 }
 
-# LoganSquare
--keep class com.bluelinelabs.logansquare.** { *; }
--keep @com.bluelinelabs.logansquare.annotation.JsonObject class *
--keep class **$$JsonObjectMapper { *; }
+# KotlinX Serialization
+-keepattributes *Annotation*, InnerClasses
+-dontnote kotlinx.serialization.SerializationKt
+-keep,includedescriptorclasses class fi.kaupunkifillarit.**$$serializer { *; } # <-- change package name to your app's
+-keepclassmembers class fi.kaupunkifillarit.** {
+    *** Companion;
+}
+-keepclasseswithmembers class fi.kaupunkifillarit.** {
+    kotlinx.serialization.KSerializer serializer(...);
+}
 
 -dontwarn com.google.android.gms.**
