@@ -91,6 +91,8 @@ class MapActivity : BaseActivity() {
                 if (app.sharedPreferences.getBoolean(FIRST_RUN, true)) {
                     if (shouldRequestLocationPermission()) {
                         requestLocationPermissions()
+                    } else {
+                        app.sharedPreferences.edit().putBoolean(FIRST_RUN, false).apply()
                     }
                 }
             }
@@ -113,6 +115,8 @@ class MapActivity : BaseActivity() {
                 ft.remove(fragment)
             }
             LocationPermissionRationaleDialogFragment().show(ft, LOCATION_PERMISSION_RATIONALE_DIALOG_TAG)
+        } else {
+            app.sharedPreferences.edit().putBoolean(FIRST_RUN, false).apply()
         }
     }
 
