@@ -10,14 +10,9 @@ import kotlinx.serialization.json.JSON
 fun <T : Any> Request.rx_object(deserializer: KSerializer<T>) =
         rx_object(object : ResponseDeserializable<T> {
             override fun deserialize(content: String): T? {
-                println("deserializing $content")
                 return try {
-                    println("parsing")
-                    val foo = JSON.nonstrict.parse(deserializer, content)
-                    println("saatiin $foo")
-                    foo
+                    JSON.nonstrict.parse(deserializer, content)
                 } catch (e: MissingFieldException) {
-                    println("vituiks män $e")
                     null
                 }
             }
