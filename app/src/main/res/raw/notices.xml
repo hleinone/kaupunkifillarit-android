@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <notices>
     <notice>
-        <name>LoganSquare</name>
-        <url>https://github.com/bluelinelabs/LoganSquare</url>
-        <copyright>Copyright 2015 BlueLine Labs, Inc.</copyright>
-        <license>Apache Software License 2.0</license>
-    </notice>
-    <notice>
         <name>RxKotlin</name>
         <url>https://github.com/ReactiveX/RxKotlin</url>
         <copyright>Copyright 2014 Netflix, Inc.</copyright>
