@@ -22,6 +22,7 @@
             android:layout_height="match_parent">
 
         </RelativeLayout>
+
     </FrameLayout>
 
     <RelativeLayout
@@ -29,7 +30,6 @@
         android:layout_width="@dimen/info_drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="end"
-        android:clickable="true"
         android:background="@color/primary">
 
         <ImageView
@@ -60,6 +60,7 @@
             android:layout_alignTop="@+id/info_title"
             android:layout_alignBottom="@+id/info_title"
             android:layout_alignParentEnd="true">
+
             <ImageButton
                 style="@style/AppTheme.Button"
                 android:background="@drawable/button_background"
@@ -69,6 +70,7 @@
                 android:layout_height="@dimen/fab_diameter"
                 android:src="@drawable/ic_share"
                 android:contentDescription="@string/close" />
+
         </FrameLayout>
 
         <TextView
@@ -98,19 +100,25 @@
                 android:layout_height="wrap_content"
                 android:paddingBottom="@dimen/info_view_vertical_margin"
                 android:orientation="vertical">
+
                 <TextView
                     android:id="@+id/info_description"
                     style="@style/AppTheme.InfoContent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/info_content" />
+
                 <TextView
                     android:id="@+id/info_open_source_licenses"
                     style="@style/AppTheme.InfoContent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/open_source_licenses" />
+
             </LinearLayout>
+
         </ScrollView>
+
     </RelativeLayout>
+
 </android.support.v4.widget.DrawerLayout>

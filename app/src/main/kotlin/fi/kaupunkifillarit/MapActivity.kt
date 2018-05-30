@@ -60,8 +60,8 @@ class MapActivity : BaseActivity() {
 
     private val rackMarkers = mutableMapOf<String, RackMarker>()
 
-    lateinit private var feedbackForm: FeedbackForm
-    lateinit private var usageLogger: UsageLogger
+    private lateinit var feedbackForm: FeedbackForm
+    private lateinit var usageLogger: UsageLogger
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
@@ -186,7 +186,7 @@ class MapActivity : BaseActivity() {
                         map?.animateToMapLocation(next)
                     }
                 }, { error ->
-                    Timber.e(error, "Location fetching failed")
+                    Timber.w(error, "Location fetching failed")
                     if (!mapMoved) {
                         map?.animateToMapLocation(DEFAULT_MAP_LOCATION)
                     }
@@ -195,7 +195,7 @@ class MapActivity : BaseActivity() {
         Api.racks
                 .observeOn(AndroidSchedulers.mainThread())
                 .bindToLifecycle(this)
-                .subscribe({ next ->
+                .subscribe { next ->
                     if (touching) {
                         return@subscribe
                     }
@@ -203,16 +203,13 @@ class MapActivity : BaseActivity() {
                     synchronized(this@MapActivity) {
                         for (rack in next) {
                             if (rackMarkers.contains(rack.id)) {
-                                rackMarkers[rack.id]?.update(rack)
-                            } else {
-                                rackMarkers[rack.id] = RackMarkerOptions(rack,
-                                        resources, map!!).makeMarker(map!!)
+                                rackMarkers[rack.id]?.remove()
                             }
+                            rackMarkers[rack.id] = RackMarkerOptions(rack,
+                                    resources, map!!).makeMarker(map!!)
                         }
                     }
-                }, { error ->
-                    Timber.e(error, "Rack retrieval failed")
-                })
+                }
         close_info_drawer.clicks()
                 .bindToLifecycle(this)
                 .subscribe { _ -> drawer.closeDrawer(GravityCompat.END) }

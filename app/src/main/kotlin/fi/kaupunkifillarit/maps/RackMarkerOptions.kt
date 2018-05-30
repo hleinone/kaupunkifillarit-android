@@ -8,15 +8,11 @@ import com.google.android.gms.maps.model.MarkerOptions
 import fi.kaupunkifillarit.R
 import fi.kaupunkifillarit.model.Rack
 
-class RackMarkerOptions {
-    private val status: Maps.MarkerOptionsWrapper<*>
-
-    constructor(rack: Rack, res: Resources, map: Maps.MapWrapper<Maps.MarkerWrapper<*>, Maps.MarkerOptionsWrapper<*>>) {
-        this.status = map.createMarkerOptions().icon(getMarkerBitmap(
-                rack.bikes < 2,
-                "${rack.bikes}",
-                res)).flat(false).position(rack.latitude, rack.longitude).anchor(0.5f, 1f)
-    }
+class RackMarkerOptions(rack: Rack, res: Resources, map: Maps.MapWrapper<Maps.MarkerWrapper<*>, Maps.MarkerOptionsWrapper<*>>) {
+    private val status: Maps.MarkerOptionsWrapper<*> = map.createMarkerOptions().icon(getMarkerBitmap(
+            rack.bikes < 2,
+            "${rack.bikes}",
+            res)).flat(false).position(rack.latitude, rack.longitude).anchor(0.5f, 1f)
 
     private fun getMarkerBitmap(isEmpty: Boolean, text: String, res: Resources): Bitmap {
         val regular = Typeface.createFromAsset(res.assets, "fonts/Montserrat-Regular.ttf")

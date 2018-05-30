@@ -1,5 +1,6 @@
 package fi.kaupunkifillarit.maps
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -21,11 +22,10 @@ object GoogleMaps {
     }
 
     class MapsWrapper(private val googleMap: GoogleMap) : Maps.MapWrapper<MarkerWrapper, MarkerOptionsWrapper> {
-
         override var myLocationEnabled: Boolean
             get() = googleMap.isMyLocationEnabled
             set(value) {
-                //noinspection MissingPermission
+                @SuppressLint("MissingPermission")
                 googleMap.isMyLocationEnabled = value
             }
 
@@ -71,13 +71,7 @@ object GoogleMaps {
         }
     }
 
-    class MarkerOptionsWrapper : Maps.MarkerOptionsWrapper<MarkerOptions> {
-        override val markerOptions: MarkerOptions
-
-        internal constructor(markerOptions: MarkerOptions) {
-            this.markerOptions = markerOptions
-        }
-
+    class MarkerOptionsWrapper internal constructor(override val markerOptions: MarkerOptions) : Maps.MarkerOptionsWrapper<MarkerOptions> {
         override fun icon(bitmap: Bitmap): Maps.MarkerOptionsWrapper<MarkerOptions> {
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bitmap))
             return this
@@ -99,15 +93,9 @@ object GoogleMaps {
         }
     }
 
-    class MarkerWrapper : Maps.MarkerWrapper<Marker> {
-        override val marker: Marker
-
-        internal constructor(marker: Marker) {
-            this.marker = marker
-        }
-
-        override fun setPosition(latitude: Double, longitude: Double) {
-            marker.position = LatLng(latitude, longitude)
+    class MarkerWrapper internal constructor(override val marker: Marker) : Maps.MarkerWrapper<Marker> {
+        override fun remove() {
+            marker.remove()
         }
     }
 }

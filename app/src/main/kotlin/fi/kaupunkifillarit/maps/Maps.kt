@@ -28,7 +28,7 @@ abstract class Maps {
     interface MarkerWrapper<out T> {
         val marker: T
 
-        fun setPosition(latitude: Double, longitude: Double)
+        fun remove()
     }
 
     interface MarkerOptionsWrapper<T> {
