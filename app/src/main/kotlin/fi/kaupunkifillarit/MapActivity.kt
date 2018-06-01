@@ -196,7 +196,7 @@ class MapActivity : BaseActivity() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .bindToLifecycle(this)
                 .subscribe { next ->
-                    if (touching) {
+                    if (touching || map == null) {
                         return@subscribe
                     }
 
@@ -263,9 +263,9 @@ class MapActivity : BaseActivity() {
                 this@MapActivity.map = next
                 setUpMap()
                 mapFragment.setOnTouchListener(View.OnTouchListener { _, motionEvent ->
-                    when (motionEvent.action) {
-                        MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> touching = false
-                        else -> touching = true
+                    touching = when (motionEvent.action) {
+                        MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> false
+                        else -> true
                     }
                     false
                 })
@@ -284,7 +284,7 @@ class MapActivity : BaseActivity() {
             return 0
         }
 
-    val navigationBarHeight: Int
+    private val navigationBarHeight: Int
         get() {
             val metrics = DisplayMetrics()
             windowManager.defaultDisplay.getMetrics(metrics)
@@ -304,7 +304,7 @@ class MapActivity : BaseActivity() {
             return 0
         }
 
-    val navigationBarWidth: Int
+    private val navigationBarWidth: Int
         get() {
             val metrics = DisplayMetrics()
             windowManager.defaultDisplay.getMetrics(metrics)
