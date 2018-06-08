@@ -20,7 +20,7 @@ object Api {
                                 if (racks != null) {
                                     Maybe.just(racks.racks)
                                 } else {
-                                    Timber.w(error, "Rack retrieval failed")
+                                    Timber.w(error, "Racks retrieval failed")
                                     Maybe.empty()
                                 }
                             }
