@@ -30,6 +30,8 @@ TODO
 
 * Translate to Swedish
 * Translate to English
+* Bring back Google Analytics
+* Use Firebase Crashlytics
 
 Licence
 -------
