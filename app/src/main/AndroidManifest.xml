@@ -42,6 +42,7 @@
         <meta-data
             android:name="com.crashlytics.ApiKey"
             android:value="ef3ee15e9ebc2d769bbbf4e216308fe35bbe38ae" />
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
     </application>
 
 </manifest>

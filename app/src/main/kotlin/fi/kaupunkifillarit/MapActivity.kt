@@ -25,16 +25,18 @@ import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import com.crashlytics.android.answers.ShareEvent
 import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapsInitializer
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.jakewharton.rxbinding2.support.v4.widget.drawerOpen
 import com.jakewharton.rxbinding2.view.clicks
 import com.trello.rxlifecycle2.kotlin.bindToLifecycle
 import de.psdev.licensesdialog.LicensesDialog
 import fi.kaupunkifillarit.maps.GoogleMaps
-import fi.kaupunkifillarit.maps.Maps
-import fi.kaupunkifillarit.maps.RackMarker
-import fi.kaupunkifillarit.maps.RackMarkerOptions
+import fi.kaupunkifillarit.maps.rackMarker
 import fi.kaupunkifillarit.model.MapLocation
 import fi.kaupunkifillarit.rx.Api
 import fi.kaupunkifillarit.util.BaseActivity
@@ -50,14 +52,14 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 class MapActivity : BaseActivity() {
-    private var map: Maps.MapWrapper<Maps.MarkerWrapper<*>, Maps.MarkerOptionsWrapper<*>>? = null
+    private var map: GoogleMap? = null
     private var mapLocation: MapLocation? = null
 
     private var mapInitialized = false
     private var mapMoved = false
     private var touching = false
 
-    private val rackMarkers = mutableMapOf<String, RackMarker>()
+    private val rackMarkers = mutableMapOf<String, Marker>()
 
     private lateinit var feedbackForm: FeedbackForm
     private lateinit var usageLogger: UsageLogger
@@ -74,6 +76,7 @@ class MapActivity : BaseActivity() {
                     BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher),
                     primaryDark))
         }
+
         feedbackForm = FeedbackForm()
         usageLogger = UsageLogger()
         setUpInfo()
@@ -122,13 +125,21 @@ class MapActivity : BaseActivity() {
             MY_PERMISSIONS_REQUEST_LOCATION -> {
                 if (grantResults.isNotEmpty() && grantResults.first() == PackageManager.PERMISSION_GRANTED) {
                     //noinspection MissingPermission
-                    map?.myLocationEnabled = true
+                    map?.isMyLocationEnabled = true
                     app.rxLocation.location().lastLocation()
                             .map { location ->
                                 MapLocation(location.latitude, location.longitude, DEFAULT_ZOOM_LEVEL, 0f, 0f)
                             }
                             .bindToLifecycle(this)
-                            .subscribe { onNext -> map?.animateToMapLocation(onNext) }
+                            .subscribe { next ->
+                                map?.animateCamera(CameraUpdateFactory.newCameraPosition(
+                                        CameraPosition.Builder()
+                                                .target(LatLng(next.latitude, next.longitude))
+                                                .zoom(next.zoom)
+                                                .bearing(next.bearing)
+                                                .tilt(next.tilt)
+                                                .build()))
+                            }
                 }
                 app.sharedPreferences.edit().putBoolean(FIRST_RUN, false).apply()
             }
@@ -174,12 +185,24 @@ class MapActivity : BaseActivity() {
                 .subscribe({ next ->
                     if (this@MapActivity.mapLocation == null && !mapMoved) {
                         this@MapActivity.mapLocation = next
-                        map?.animateToMapLocation(next)
+                        map?.animateCamera(CameraUpdateFactory.newCameraPosition(
+                                CameraPosition.Builder()
+                                        .target(LatLng(next.latitude, next.longitude))
+                                        .zoom(next.zoom)
+                                        .bearing(next.bearing)
+                                        .tilt(next.tilt)
+                                        .build()))
                     }
                 }, { error ->
                     Timber.w(error, "Location fetching failed")
                     if (!mapMoved) {
-                        map?.animateToMapLocation(DEFAULT_MAP_LOCATION)
+                        map?.animateCamera(CameraUpdateFactory.newCameraPosition(
+                                CameraPosition.Builder()
+                                        .target(LatLng(DEFAULT_MAP_LOCATION.latitude, DEFAULT_MAP_LOCATION.longitude))
+                                        .zoom(DEFAULT_MAP_LOCATION.zoom)
+                                        .bearing(DEFAULT_MAP_LOCATION.bearing)
+                                        .tilt(DEFAULT_MAP_LOCATION.tilt)
+                                        .build()))
                     }
                 })
 
@@ -196,8 +219,9 @@ class MapActivity : BaseActivity() {
                             if (rackMarkers.contains(rack.id)) {
                                 rackMarkers[rack.id]?.remove()
                             }
-                            rackMarkers[rack.id] = RackMarkerOptions(rack,
-                                    resources, map!!).makeMarker(map!!)
+                            rackMarkers[rack.id] =
+                                    map!!.addMarker(rackMarker(rack,
+                                            resources))
                         }
                     }
                 }
@@ -246,9 +270,8 @@ class MapActivity : BaseActivity() {
     private fun setUpMapIfNeeded() {
         if (map == null) {
             val mapFragment = fragmentManager.findFragmentById(R.id.map) as CustomMapFragment
-            GoogleMaps.create(mapFragment).subscribe { onNext: Maps.MapWrapper<*, *> ->
+            GoogleMaps.create(mapFragment).subscribe { next ->
                 @Suppress("UNCHECKED_CAST")
-                val next = onNext as Maps.MapWrapper<Maps.MarkerWrapper<*>, Maps.MarkerOptionsWrapper<*>>
                 this@MapActivity.map = next
                 setUpMap()
                 mapFragment.setOnTouchListener(View.OnTouchListener { _, motionEvent ->
@@ -335,29 +358,33 @@ class MapActivity : BaseActivity() {
         val map = this.map!!
 
         if (!shouldRequestLocationPermission()) {
-            //noinspection MissingPermission
-            map.myLocationEnabled = true
+            @SuppressLint("MissingPermission")
+            map.isMyLocationEnabled = true
         }
-        map.trafficEnabled = false
-        map.setOnMarkerClickListener(object : Maps.OnMarkerClickListener {
-            override fun onMarkerClick(marker: Maps.MarkerWrapper<*>): Boolean {
-                return true
-            }
-        })
+        map.isTrafficEnabled = false
         if (!mapMoved) {
-            map.animateToMapLocation(mapLocation ?: DEFAULT_MAP_LOCATION)
+            val location = mapLocation ?: DEFAULT_MAP_LOCATION
+            map.animateCamera(CameraUpdateFactory.newCameraPosition(
+                    CameraPosition.Builder()
+                            .target(LatLng(location.latitude, location.longitude))
+                            .zoom(location.zoom)
+                            .bearing(location.bearing)
+                            .tilt(location.tilt)
+                            .build()))
         }
-        map.setOnMapLocationChangeListener(object : Maps.OnMapLocationChangeListener {
-            override fun onMapLocationChange(mapLocation: MapLocation) {
-                if (!mapInitialized) {
-                    mapInitialized = true
-                } else {
-                    mapMoved = true
-                    this@MapActivity.mapLocation = mapLocation
-                }
+        map.setOnCameraChangeListener { cameraPosition ->
+            if (!mapInitialized) {
+                mapInitialized = true
+            } else {
+                mapMoved = true
+                this@MapActivity.mapLocation = MapLocation(
+                        cameraPosition.target.latitude,
+                        cameraPosition.target.longitude,
+                        cameraPosition.zoom,
+                        cameraPosition.bearing,
+                        cameraPosition.tilt)
             }
-        })
-            }
+        }
         updateMapPadding()
     }
 
@@ -399,16 +426,16 @@ class MapActivity : BaseActivity() {
             return android.support.v7.app.AlertDialog.Builder(activity, R.style.AppTheme_AlertDialog)
                     .setTitle(R.string.rating_request_title)
                     .setMessage(R.string.rating_request_message)
-                    .setPositiveButton(R.string.rating_request_rate, { _, _ ->
+                    .setPositiveButton(R.string.rating_request_rate) { _, _ ->
                         (activity as MapActivity).app.sharedPreferences.edit().putInt(MapActivity.FEEDBACK_ANSWER, DialogInterface.BUTTON_POSITIVE).apply()
                         activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=fi.kaupunkifillarit")))
-                    })
-                    .setNeutralButton(R.string.rating_request_later, { _, _ ->
+                    }
+                    .setNeutralButton(R.string.rating_request_later) { _, _ ->
                         (activity as MapActivity).app.sharedPreferences.edit().putInt(MapActivity.FEEDBACK_ANSWER, DialogInterface.BUTTON_NEUTRAL).apply()
-                    })
-                    .setNegativeButton(R.string.rating_request_dont_remind, { _, _ ->
+                    }
+                    .setNegativeButton(R.string.rating_request_dont_remind) { _, _ ->
                         (activity as MapActivity).app.sharedPreferences.edit().putInt(MapActivity.FEEDBACK_ANSWER, DialogInterface.BUTTON_NEGATIVE).apply()
-                    })
+                    }
                     .create()
         }
     }
@@ -427,10 +454,10 @@ class MapActivity : BaseActivity() {
             val dialog = android.support.v7.app.AlertDialog.Builder(activity, R.style.AppTheme_AlertDialog)
                     .setTitle(R.string.location_permission_rationale_title)
                     .setMessage(R.string.location_permission_rationale_message)
-                    .setPositiveButton(R.string.location_permission_rationale_ok, { _, _ ->
+                    .setPositiveButton(R.string.location_permission_rationale_ok) { _, _ ->
                         ActivityCompat.requestPermissions(activity,
                                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), MY_PERMISSIONS_REQUEST_LOCATION)
-                    })
+                    }
                     .create()
 
             isCancelable = false
@@ -446,19 +473,19 @@ class MapActivity : BaseActivity() {
     }
 
     companion object {
-        private val LAST_MAP_LOCATION = "last_map_location"
-        private val FIRST_RUN = "first_run"
+        private const val LAST_MAP_LOCATION = "last_map_location"
+        private const val FIRST_RUN = "first_run"
         private val HELSINKI = LatLng(60.173324, 24.9410248)
-        private val DEFAULT_ZOOM_LEVEL = 15f
+        private const val DEFAULT_ZOOM_LEVEL = 15f
         private val DEFAULT_MAP_LOCATION = MapLocation(
                 HELSINKI.latitude, HELSINKI.longitude, DEFAULT_ZOOM_LEVEL, 0f, 0f)
 
-        private val MY_PERMISSIONS_REQUEST_LOCATION = 1
+        private const val MY_PERMISSIONS_REQUEST_LOCATION = 1
 
-        private val FEEDBACK_ANSWER = "feedback_answer"
+        private const val FEEDBACK_ANSWER = "feedback_answer"
 
-        private val LAST_USED = "last_used"
-        private val USE_COUNT = "use_count"
+        private const val LAST_USED = "last_used"
+        private const val USE_COUNT = "use_count"
 
         private val FEEDBACK_DIALOG_TAG = FeedbackDialogFragment::class.java.name
         private val LOCATION_PERMISSION_RATIONALE_DIALOG_TAG = LocationPermissionRationaleDialogFragment::class.java.name
