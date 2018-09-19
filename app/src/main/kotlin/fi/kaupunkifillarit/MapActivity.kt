@@ -31,7 +31,6 @@ import com.jakewharton.rxbinding2.support.v4.widget.drawerOpen
 import com.jakewharton.rxbinding2.view.clicks
 import com.trello.rxlifecycle2.kotlin.bindToLifecycle
 import de.psdev.licensesdialog.LicensesDialog
-import fi.kaupunkifillarit.analytics.*
 import fi.kaupunkifillarit.maps.GoogleMaps
 import fi.kaupunkifillarit.maps.Maps
 import fi.kaupunkifillarit.maps.RackMarker
@@ -84,10 +83,7 @@ class MapActivity : BaseActivity() {
         info_description.movementMethod = LinkMovementMethod.getInstance()
         @Suppress("DEPRECATION")
         drawer.drawerOpen(GravityCompat.END).bindToLifecycle(this).subscribe { open ->
-            if (open) {
-                app.tracker.send(InfoDrawerEvents.open())
-            } else {
-                app.tracker.send(InfoDrawerEvents.close())
+            if (!open) {
                 if (app.sharedPreferences.getBoolean(FIRST_RUN, true)) {
                     if (shouldRequestLocationPermission()) {
                         requestLocationPermissions()
@@ -127,15 +123,12 @@ class MapActivity : BaseActivity() {
                 if (grantResults.isNotEmpty() && grantResults.first() == PackageManager.PERMISSION_GRANTED) {
                     //noinspection MissingPermission
                     map?.myLocationEnabled = true
-                    app.tracker.send(LocationPermissionsEvents.granted())
                     app.rxLocation.location().lastLocation()
                             .map { location ->
                                 MapLocation(location.latitude, location.longitude, DEFAULT_ZOOM_LEVEL, 0f, 0f)
                             }
                             .bindToLifecycle(this)
                             .subscribe { onNext -> map?.animateToMapLocation(onNext) }
-                } else {
-                    app.tracker.send(LocationPermissionsEvents.denied())
                 }
                 app.sharedPreferences.edit().putBoolean(FIRST_RUN, false).apply()
             }
@@ -165,8 +158,6 @@ class MapActivity : BaseActivity() {
             mapFragment.view!!.setPadding(0, statusBarHeight, 0, 0)
             if (app.googleApiAvailability.isUserResolvableError(resultCode)) {
                 app.googleApiAvailability.showErrorNotification(this, resultCode)
-            } else {
-                app.tracker.send(ErrorEvents.playServicesError(app.googleApiAvailability.getErrorString(resultCode)))
             }
         }
     }
@@ -216,8 +207,6 @@ class MapActivity : BaseActivity() {
         share.clicks()
                 .bindToLifecycle(this)
                 .subscribe { _ ->
-                    app.answers.logShare(ShareEvent())
-                    app.tracker.send(InfoDrawerEvents.shareClick())
                     val share = Intent(Intent.ACTION_SEND)
                     share.type = "text/plain"
                     share.putExtra(Intent.EXTRA_TEXT, "https://play.google.com/store/apps/details?id=fi.kaupunkifillarit")
@@ -368,12 +357,7 @@ class MapActivity : BaseActivity() {
                 }
             }
         })
-        map.setOnMyLocationButtonClickListener(object : Maps.OnMyLocationButtonClickListener {
-            override fun onMyLocationButtonClick(): Boolean {
-                app.tracker.send(MapsEvents.myLocationClick())
-                return false
             }
-        })
         updateMapPadding()
     }
 
@@ -389,7 +373,6 @@ class MapActivity : BaseActivity() {
                     ft.remove(fragment)
                 }
                 FeedbackDialogFragment().show(ft, FEEDBACK_DIALOG_TAG)
-                this@MapActivity.app.tracker.send(FeedbackEvents.showDialog())
             }
         }
 
@@ -418,16 +401,13 @@ class MapActivity : BaseActivity() {
                     .setMessage(R.string.rating_request_message)
                     .setPositiveButton(R.string.rating_request_rate, { _, _ ->
                         (activity as MapActivity).app.sharedPreferences.edit().putInt(MapActivity.FEEDBACK_ANSWER, DialogInterface.BUTTON_POSITIVE).apply()
-                        (activity as MapActivity).app.tracker.send(FeedbackEvents.buttonClick(DialogInterface.BUTTON_POSITIVE))
                         activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=fi.kaupunkifillarit")))
                     })
                     .setNeutralButton(R.string.rating_request_later, { _, _ ->
                         (activity as MapActivity).app.sharedPreferences.edit().putInt(MapActivity.FEEDBACK_ANSWER, DialogInterface.BUTTON_NEUTRAL).apply()
-                        (activity as MapActivity).app.tracker.send(FeedbackEvents.buttonClick(DialogInterface.BUTTON_NEUTRAL))
                     })
                     .setNegativeButton(R.string.rating_request_dont_remind, { _, _ ->
                         (activity as MapActivity).app.sharedPreferences.edit().putInt(MapActivity.FEEDBACK_ANSWER, DialogInterface.BUTTON_NEGATIVE).apply()
-                        (activity as MapActivity).app.tracker.send(FeedbackEvents.buttonClick(DialogInterface.BUTTON_NEGATIVE))
                     })
                     .create()
         }
