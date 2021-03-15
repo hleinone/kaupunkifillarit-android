@@ -1,0 +1,85 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
+task askForPasswords  {
+    doLast {
+        android.signingConfigs.release.storeFile = file(STORE)
+        android.signingConfigs.release.keyAlias = ALIAS
+        if (project.hasProperty("STORE_PASSWORD")) {
+            android.signingConfigs.release.storePassword = STORE_PASSWORD
+        } else {
+            android.signingConfigs.release.storePassword = new String(System.console().readPassword("\n\nKeystore " + android.signingConfigs.release.storeFile + " password: "))
+        }
+        if (project.hasProperty("KEY_PASSWORD")) {
+            android.signingConfigs.release.keyPassword = KEY_PASSWORD
+        } else {
+            android.signingConfigs.release.keyPassword = new String(System.console().readPassword("\nKey " + android.signingConfigs.release.keyAlias + " password: "))
+        }
+    }
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name.trim() == "validateSigningRelease") {
+        task.dependsOn askForPasswords
+    }
+}
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
+
+    defaultConfig {
+        applicationId "fi.kaupunkifillarit"
+        minSdkVersion 17
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("/dev/null")
+            storePassword ""
+            keyAlias ""
+            keyPassword ""
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+            applicationIdSuffix ".debug"
+            versionNameSuffix " debug"
+        }
+
+        release {
+            debuggable false
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            shrinkResources true
+            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.3.2'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.3.0'
+}
