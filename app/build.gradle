@@ -95,4 +95,6 @@ dependencies {
 
     implementation 'com.github.kittinunf.fuel:fuel:2.3.1'
     implementation 'com.github.kittinunf.fuel:fuel-coroutines:2.3.1'
+
+    implementation 'de.psdev.licensesdialog:licensesdialog:2.1.0'
 }

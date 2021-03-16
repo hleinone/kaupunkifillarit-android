@@ -29,6 +29,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
+import de.psdev.licensesdialog.LicensesDialog
 import fi.kaupunkifillarit.databinding.ActivityMapsBinding
 import fi.kaupunkifillarit.maps.rackMarker
 import fi.kaupunkifillarit.model.MapLocation
@@ -125,7 +126,13 @@ class MapsActivity : AppCompatActivity() {
         }
 
         binding.infoOpenSourceLicenses.setOnClickListener {
-
+            LicensesDialog.Builder(this)
+                .setThemeResourceId(R.style.AppTheme_Dialog_Alert)
+                .setTitle(R.string.open_source_licenses)
+                .setCloseText(R.string.close)
+                .setNotices(R.raw.notices)
+                .build()
+                .show()
         }
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment

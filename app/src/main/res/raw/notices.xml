@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<notices>
+    <notice>
+        <name>AndroidX Core</name>
+        <url>https://developer.android.com/jetpack/androidx/releases/core</url>
+        <copyright>Copyright 2005-2011 The Android Open Source Project</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>AndroidX Appcompat</name>
+        <url>https://developer.android.com/jetpack/androidx/releases/appcompat</url>
+        <copyright>Copyright 2005-2011 The Android Open Source Project</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>AndroidX Preference</name>
+        <url>https://developer.android.com/jetpack/androidx/releases/preference</url>
+        <copyright>Copyright 2005-2011 The Android Open Source Project</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>AndroidX Activity</name>
+        <url>https://developer.android.com/jetpack/androidx/releases/activity</url>
+        <copyright>Copyright 2005-2011 The Android Open Source Project</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>AndroidX Fragment</name>
+        <url>https://developer.android.com/jetpack/androidx/releases/fragment</url>
+        <copyright>Copyright 2005-2011 The Android Open Source Project</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>kotlinx.serialization</name>
+        <url>https://github.com/Kotlin/kotlinx.serialization</url>
+        <copyright />
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>kotlinx.coroutines</name>
+        <url>https://github.com/Kotlin/kotlinx.coroutines</url>
+        <copyright />
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Fuel</name>
+        <url>https://github.com/kittinunf/Fuel</url>
+        <copyright />
+        <license>MIT License</license>
+    </notice>
+    <notice>
+        <name>LicensesDialog</name>
+        <url>https://github.com/PSDev/LicensesDialog</url>
+        <copyright>Copyright 2013-2016 Philip Schiffer</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Montserrat</name>
+        <url/>
+        <copyright>Copyright (c) 2011-2012, Julieta Ulanovsky (julieta.ulanovsky@gmail.com)</copyright>
+        <license>SIL Open Font License v1.1</license>
+    </notice>
+</notices>
