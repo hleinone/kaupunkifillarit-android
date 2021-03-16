@@ -38,6 +38,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 class MapsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMapsBinding
@@ -141,22 +142,6 @@ class MapsActivity : AppCompatActivity() {
                 false
             }
 
-            googleMap.cameraMoveStarted().filter {
-                it == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE
-            }.flatMapLatest {
-                googleMap.cameraIdle()
-            }.collect {
-                val lastMapLocation = MapLocation(
-                    googleMap.cameraPosition.target.latitude,
-                    googleMap.cameraPosition.target.longitude,
-                    googleMap.cameraPosition.zoom,
-                    googleMap.cameraPosition.bearing,
-                    googleMap.cameraPosition.tilt
-                )
-                app.sharedPreferences.edit()
-                    .putObject(LAST_MAP_LOCATION, MapLocation.serializer(), lastMapLocation).apply()
-            }
-
             if (app.sharedPreferences.getBoolean(FIRST_RUN, true)) {
                 googleMap.moveCamera(DEFAULT_MAP_LOCATION.let {
                     CameraUpdateFactory.newCameraPosition(
@@ -170,10 +155,30 @@ class MapsActivity : AppCompatActivity() {
                 })
             }
 
-            Api.racks().collect { racks ->
-                googleMap.clear()
-                racks.forEach { rack ->
-                    googleMap.addMarker(rackMarker(rack, this@MapsActivity))
+            launch {
+                Api.racks().collect { racks ->
+                    googleMap.clear()
+                    racks.forEach { rack ->
+                        googleMap.addMarker(rackMarker(rack, this@MapsActivity))
+                    }
+                }
+            }
+
+            launch {
+                googleMap.cameraMoveStarted().filter {
+                    it == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE
+                }.flatMapLatest {
+                    flowOf(googleMap.cameraIdle().first())
+                }.collect {
+                    val lastMapLocation = MapLocation(
+                        googleMap.cameraPosition.target.latitude,
+                        googleMap.cameraPosition.target.longitude,
+                        googleMap.cameraPosition.zoom,
+                        googleMap.cameraPosition.bearing,
+                        googleMap.cameraPosition.tilt
+                    )
+                    app.sharedPreferences.edit()
+                        .putObject(LAST_MAP_LOCATION, MapLocation.serializer(), lastMapLocation).apply()
                 }
             }
         }
@@ -305,7 +310,7 @@ class MapsActivity : AppCompatActivity() {
         private val FINLAND by lazy { LatLng(61.924100, 25.748200) }
         private val DEFAULT_MAP_LOCATION by lazy {
             MapLocation(
-                FINLAND.latitude, FINLAND.longitude, MY_LOCATION_ZOOM_LEVEL, 0f, 0f
+                FINLAND.latitude, FINLAND.longitude, 5f, 0f, 0f
             )
         }
     }
