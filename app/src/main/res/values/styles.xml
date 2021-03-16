@@ -1,29 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Base.InfoTitle" parent="TextAppearance.AppCompat.Headline">
-    </style>
+    <style name="Base.InfoTitle" parent="TextAppearance.AppCompat.Headline" />
 
     <style name="AppTheme.InfoTitle" parent="Base.InfoTitle">
-        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textColor">@color/black</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:fontFamily">@font/montserrat_bold</item>
     </style>
 
-    <style name="Base.InfoContent" parent="TextAppearance.AppCompat.Small">
-    </style>
+    <style name="Base.InfoContent" parent="TextAppearance.AppCompat.Small" />
 
     <style name="AppTheme.InfoContent" parent="Base.InfoContent">
-        <item name="android:textColor">@android:color/black</item>
-        <item name="android:textColorLink">@android:color/black</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textColorLink">@color/black</item>
         <item name="android:fontFamily">@font/montserrat_regular</item>
     </style>
 
-    <style name="AppTheme.Button" parent="Widget.AppCompat.Button">
-    </style>
-
-    <style name="AppTheme.AlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="colorAccent">@color/primary</item>
-    </style>
+    <style name="AppTheme.Button" parent="Widget.MaterialComponents.Button" />
 
 </resources>
