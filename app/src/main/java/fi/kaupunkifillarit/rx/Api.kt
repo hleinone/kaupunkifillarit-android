@@ -12,21 +12,18 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.ticker
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.serializer
 
 object Api {
     @FlowPreview
     @ObsoleteCoroutinesApi
-    @InternalSerializationApi
     fun racks(): Flow<Set<Rack>> =
         ticker(10000, 0)
             .receiveAsFlow()
             .flatMapConcat {
                 flow<Set<Rack>> {
                     val racks = Fuel.get("https://kaupunkifillarit.fi/api/stations")
-                        .awaitObject(Racks::class.serializer()).racks
+                        .awaitObject(Racks.serializer()).racks
                     emit(racks)
                 }.catch {
                     Log.w("Api", "Racks retrieval failed", it)
