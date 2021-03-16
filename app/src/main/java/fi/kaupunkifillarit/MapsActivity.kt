@@ -223,7 +223,17 @@ class MapsActivity : AppCompatActivity() {
                 0,
                 insets.systemWindowInsetTop,
                 insets.systemWindowInsetRight,
-                insets.stableInsetBottom
+                0
+            )
+            insets
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.infoContent) { v, insets ->
+            v.setPadding(
+                0,
+                0,
+                0,
+                insets.systemWindowInsetBottom + resources.getDimensionPixelSize(R.dimen.info_view_vertical_margin)
             )
             insets
         }
