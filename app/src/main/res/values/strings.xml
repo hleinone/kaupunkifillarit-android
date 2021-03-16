@@ -6,11 +6,16 @@
         \n
         \nKaupunkifillareiden ainoa ongelma on niiden kova suosio. Siispä me kaupunkipyöräilijät, <a href="https://twitter.com/sampsakuronen">Sampsa Kuronen</a>, <a href="https://twitter.com/albrto">Antero Päärni</a>, <a href="https://twitter.com/lauripiispanen">Lauri Piispanen</a>, <a href="https://twitter.com/hleinone">Hannu Leinonen</a> ja <a href="https://twitter.com/teemupontelin">Teemu Pöntelin</a>, päätimme vapaa-ajallamme avittaa muita kaupunkilaisia.
         \n
-        \nPyöriä käyttämään pääsee tosi helposti: Helsingissä <a href="https://www.hsl.fi/kaupunkipy%C3%B6r%C3%A4t">hsl.fi/kaupunkipyörät</a> ja Turussa <a href="https://www.foli.fi/fi/kaupunkipyorat">foli.fi/fi/kaupunkipyorat</a>
-        \n
+        \nPyöriä käyttämään pääsee tosi helposti:\n
+        <ul>
+            <li>Pääkaupunkiseudulla <a href="https://www.hsl.fi/kaupunkipy%C3%B6r%C3%A4t">hsl.fi/kaupunkipyörät</a></li>\n
+            <li>Turussa <a href="https://www.foli.fi/fi/kaupunkipyorat">foli.fi/fi/kaupunkipyorat</a></li>\n
+            <li>Oulussa <a href="https://kaupunkipyorat.ouka.fi/">kaupunkipyorat.ouka.fi</a></li>\n
+        </ul>
         \n<a href="https://www.dropbox.com/sh/ni5lq7nu0waqprs/AAD5hdNUydglidjCfhM27zyDa?dl=0">Press kit löytyy täältä</a>.
         \n
-        \nTiedot ovat HSL:n ja Fölin tarjoamaa avointa dataa.\n</string>
+        \nTiedot ovat HSL:n, Fölin ja Oulun liikenteen tarjoamaa avointa dataa.\n</string>
     <string name="open_source_licenses"><u>Avoimen lähdekoodin lisenssit</u></string>
     <string name="close">Sulje</string>
+    <string name="share">Jaa linkki</string>
 </resources>

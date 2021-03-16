@@ -65,7 +65,7 @@
                 android:layout_height="@dimen/fab_diameter"
                 android:layout_gravity="center_vertical"
                 android:background="@drawable/button_background"
-                android:contentDescription="@string/close"
+                android:contentDescription="@string/share"
                 android:src="@drawable/ic_share" />
 
         </FrameLayout>
