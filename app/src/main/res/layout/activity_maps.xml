@@ -4,7 +4,8 @@
     android:id="@+id/drawer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MapsActivity">
+    tools:context=".MapsActivity"
+    tools:openDrawer="end">
 
     <FrameLayout
         android:id="@+id/content_frame"
@@ -17,13 +18,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <RelativeLayout
-            android:id="@+id/content"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        </RelativeLayout>
-
     </FrameLayout>
 
     <RelativeLayout
@@ -31,7 +25,9 @@
         android:layout_width="@dimen/info_drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="end"
-        android:background="@color/primary">
+        android:background="@color/primary"
+        android:clickable="true"
+        android:focusable="true">
 
         <ImageView
             android:id="@+id/logo"
@@ -40,7 +36,7 @@
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/info_view_vertical_margin"
-            android:src="@drawable/logo"
+            android:src="@drawable/splash"
             tools:ignore="ContentDescription" />
 
         <ImageButton
@@ -48,8 +44,8 @@
             style="@style/AppTheme.Button"
             android:layout_width="@dimen/fab_diameter"
             android:layout_height="@dimen/fab_diameter"
+            android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
             android:background="@drawable/button_background"
             android:contentDescription="@string/close"
             android:src="@drawable/ic_close" />
