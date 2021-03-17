@@ -4,34 +4,12 @@ plugins {
     id 'kotlinx-serialization'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
-}
-
-task askForPasswords {
-    doLast {
-        android.signingConfigs.release.storeFile = file(STORE)
-        android.signingConfigs.release.keyAlias = ALIAS
-        if (project.hasProperty("STORE_PASSWORD")) {
-            android.signingConfigs.release.storePassword = STORE_PASSWORD
-        } else {
-            android.signingConfigs.release.storePassword = new String(System.console().readPassword("\n\nKeystore " + android.signingConfigs.release.storeFile + " password: "))
-        }
-        if (project.hasProperty("KEY_PASSWORD")) {
-            android.signingConfigs.release.keyPassword = KEY_PASSWORD
-        } else {
-            android.signingConfigs.release.keyPassword = new String(System.console().readPassword("\nKey " + android.signingConfigs.release.keyAlias + " password: "))
-        }
-    }
-}
-
-tasks.whenTaskAdded { task ->
-    if (task.name.trim() in ["packageRelease", "signingReport"]) {
-        task.dependsOn askForPasswords
-    }
+    id 'org.barfuin.gradle.taskinfo' version '1.0.5'
 }
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.2"
+    buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "fi.kaupunkifillarit"
@@ -44,10 +22,10 @@ android {
 
     signingConfigs {
         release {
-            storeFile file("/dev/null")
-            storePassword ""
-            keyAlias ""
-            keyPassword ""
+            storeFile file(STORE)
+            storePassword STORE_PASSWORD
+            keyAlias ALIAS
+            keyPassword KEY_PASSWORD
         }
     }
 
@@ -80,6 +58,10 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+      lintOptions {
+          abortOnError false
+      }
 }
 
 dependencies {
