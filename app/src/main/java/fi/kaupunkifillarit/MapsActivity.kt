@@ -98,6 +98,7 @@ class MapsActivity : AppCompatActivity() {
                         app.sharedPreferences.edit().putBoolean(FIRST_RUN, false)
                             .apply()
                         binding.drawer.removeDrawerListener(listener)
+                        checkAndRequestPermissions()
                     }
                 }
             })
