@@ -14,7 +14,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -47,13 +46,10 @@ class MapsActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-            if (it) {
-                onPermissionGranted()
-            } else {
-                onPermissionDenied()
-            }
+            onPermissionResult(it)
         }
 
+    @SuppressLint("MissingPermission")
     @ExperimentalCoroutinesApi
     @FlowPreview
     @ObsoleteCoroutinesApi
@@ -261,7 +257,7 @@ class MapsActivity : AppCompatActivity() {
             Manifest.permission.ACCESS_FINE_LOCATION
         )) {
             PackageManager.PERMISSION_GRANTED -> {
-                onPermissionGranted()
+                onPermissionResult(true)
             }
             else -> {
                 requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -269,51 +265,37 @@ class MapsActivity : AppCompatActivity() {
         }
     }
 
-    @RequiresPermission("android.permission.ACCESS_FINE_LOCATION")
-    private fun onPermissionGranted() {
+    @SuppressLint("MissingPermission")
+    private fun onPermissionResult(isGranted: Boolean) {
         val mapFragment =
             supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         lifecycle.coroutineScope.launchWhenResumed {
             val googleMap = mapFragment.awaitMap()
-            googleMap.isMyLocationEnabled = true
+            googleMap.isMyLocationEnabled = isGranted
             val lastMapLocation =
                 app.sharedPreferences.getObject(LAST_MAP_LOCATION, MapLocation.serializer(), null)
             val cameraUpdate =
-                (lastMapLocation ?: app.locationProviderClient.awaitLastLocation()?.let {
-                    MapLocation(it.latitude, it.longitude, 0f, 0f, 0f)
-                })?.let {
+                (lastMapLocation
+                    ?: (if (isGranted)
+                        app.locationProviderClient.awaitLastLocation()?.let {
+                            MapLocation(
+                                it.latitude,
+                                it.longitude,
+                                MY_LOCATION_ZOOM_LEVEL,
+                                0f,
+                                0f
+                            )
+                        } else null)
+                    ?: DEFAULT_MAP_LOCATION).let {
                     CameraUpdateFactory.newCameraPosition(
                         CameraPosition.Builder()
                             .target(LatLng(it.latitude, it.longitude))
-                            .zoom(MY_LOCATION_ZOOM_LEVEL)
-                            .bearing(0f)
-                            .tilt(0f)
+                            .zoom(it.zoom)
+                            .bearing(it.bearing)
+                            .tilt(it.tilt)
                             .build()
                     )
                 }
-            googleMap.animateCamera(cameraUpdate)
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun onPermissionDenied() {
-        val mapFragment =
-            supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        lifecycle.coroutineScope.launchWhenResumed {
-            val googleMap = mapFragment.awaitMap()
-            googleMap.isMyLocationEnabled = false
-            val lastMapLocation =
-                app.sharedPreferences.getObject(LAST_MAP_LOCATION, MapLocation.serializer(), null)
-            val cameraUpdate = (lastMapLocation ?: DEFAULT_MAP_LOCATION).let {
-                CameraUpdateFactory.newCameraPosition(
-                    CameraPosition.Builder()
-                        .target(LatLng(it.latitude, it.longitude))
-                        .zoom(it.zoom)
-                        .bearing(it.bearing)
-                        .tilt(it.tilt)
-                        .build()
-                )
-            }
             googleMap.animateCamera(cameraUpdate)
         }
     }

@@ -1,5 +1,6 @@
 package fi.kaupunkifillarit.util
 
+import android.Manifest
 import android.location.Location
 import androidx.annotation.RequiresPermission
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -48,7 +49,7 @@ fun GoogleMap.cameraIdle(): Flow<Unit> = callbackFlow {
     }
 }
 
-@RequiresPermission(anyOf = ["android.permission.ACCESS_COARSE_LOCATION", "android.permission.ACCESS_FINE_LOCATION"])
+@RequiresPermission(anyOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
 suspend inline fun FusedLocationProviderClient.awaitLastLocation(): Location? =
     suspendCancellableCoroutine { continuation ->
         lastLocation.addOnSuccessListener { location ->
