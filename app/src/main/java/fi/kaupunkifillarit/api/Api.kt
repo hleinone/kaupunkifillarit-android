@@ -1,4 +1,4 @@
-package fi.kaupunkifillarit.rx
+package fi.kaupunkifillarit.api
 
 import android.util.Log
 import com.github.kittinunf.fuel.Fuel
@@ -21,7 +21,7 @@ object Api {
         ticker(10000, 0)
             .receiveAsFlow()
             .flatMapConcat {
-                flow<Set<Rack>> {
+                flow {
                     val racks = Fuel.get("https://kaupunkifillarit.fi/api/stations")
                         .awaitObject(Racks.serializer()).racks
                     emit(racks)

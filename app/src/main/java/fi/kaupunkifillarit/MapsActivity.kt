@@ -29,10 +29,10 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import de.psdev.licensesdialog.LicensesDialog
+import fi.kaupunkifillarit.api.Api
 import fi.kaupunkifillarit.databinding.ActivityMapsBinding
 import fi.kaupunkifillarit.maps.rackMarker
 import fi.kaupunkifillarit.model.MapLocation
-import fi.kaupunkifillarit.rx.Api
 import fi.kaupunkifillarit.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
