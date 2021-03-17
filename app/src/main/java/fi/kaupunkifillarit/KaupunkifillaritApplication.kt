@@ -1,14 +1,14 @@
 package fi.kaupunkifillarit
 
-import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.multidex.MultiDexApplication
 import androidx.preference.PreferenceManager
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
-open class KaupunkifillaritApplication : Application() {
+open class KaupunkifillaritApplication : MultiDexApplication() {
     val sharedPreferences: SharedPreferences by lazy {
         PreferenceManager.getDefaultSharedPreferences(this)
     }
