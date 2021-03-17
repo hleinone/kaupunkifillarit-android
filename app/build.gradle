@@ -5,7 +5,7 @@ plugins {
     id 'com.google.firebase.crashlytics'
 }
 
-task askForPasswords  {
+task askForPasswords {
     doLast {
         android.signingConfigs.release.storeFile = file(STORE)
         android.signingConfigs.release.keyAlias = ALIAS
@@ -23,7 +23,7 @@ task askForPasswords  {
 }
 
 tasks.whenTaskAdded { task ->
-    if (task.name.trim() == "validateSigningRelease") {
+    if (task.name.trim() in ["validateSigningRelease", "signingReport"]) {
         task.dependsOn askForPasswords
     }
 }

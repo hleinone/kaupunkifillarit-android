@@ -3,3 +3,4 @@
 /src/debug/res/values/google_maps_api.xml
 /src/release/google-services.json
 /src/release/res/values/google_maps_api.xml
+gradle.properties
