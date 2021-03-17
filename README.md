@@ -29,7 +29,7 @@ TODO
 * Translate to English
 * Dark theme
 
-Licence
+License
 -------
 
 The MIT License (MIT)
