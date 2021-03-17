@@ -37,8 +37,8 @@ android {
         applicationId "fi.kaupunkifillarit"
         minSdkVersion 17
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
+        versionCode 18
+        versionName "2.0.0"
         multiDexEnabled true
     }
 
