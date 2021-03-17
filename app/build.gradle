@@ -24,7 +24,7 @@ task askForPasswords {
 }
 
 tasks.whenTaskAdded { task ->
-    if (task.name.trim() in ["validateSigningRelease", "signingReport"]) {
+    if (task.name.trim() in ["packageRelease", "signingReport"]) {
         task.dependsOn askForPasswords
     }
 }
