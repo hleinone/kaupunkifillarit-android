@@ -4,7 +4,6 @@ plugins {
     id 'kotlinx-serialization'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
-    id 'org.barfuin.gradle.taskinfo' version '1.0.5'
 }
 
 android {
@@ -59,9 +58,9 @@ android {
         jvmTarget = '1.8'
     }
 
-      lintOptions {
-          abortOnError false
-      }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
