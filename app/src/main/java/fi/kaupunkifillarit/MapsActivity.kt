@@ -139,6 +139,10 @@ class MapsActivity : AppCompatActivity() {
                 R.raw.map_style
             )
             googleMap.setMapStyle(style)
+            googleMap.isTrafficEnabled = false
+            googleMap.isIndoorEnabled = false
+            googleMap.uiSettings.isMapToolbarEnabled = false
+            googleMap.uiSettings.isZoomControlsEnabled = false
 
             googleMap.setOnMyLocationButtonClickListener {
                 app.sharedPreferences.edit().remove(LAST_MAP_LOCATION).apply()
@@ -181,7 +185,8 @@ class MapsActivity : AppCompatActivity() {
                         googleMap.cameraPosition.tilt
                     )
                     app.sharedPreferences.edit()
-                        .putObject(LAST_MAP_LOCATION, MapLocation.serializer(), lastMapLocation).apply()
+                        .putObject(LAST_MAP_LOCATION, MapLocation.serializer(), lastMapLocation)
+                        .apply()
                 }
             }
         }
@@ -215,7 +220,6 @@ class MapsActivity : AppCompatActivity() {
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.drawer) { v, insets ->
             v.layoutParams = (v.layoutParams as FrameLayout.LayoutParams).apply {
-                leftMargin = 0
                 rightMargin = insets.mandatorySystemGestureInsets.right
             }
             insets.inset(0, 0, insets.mandatorySystemGestureInsets.right, 0)
