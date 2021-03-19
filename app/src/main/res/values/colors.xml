@@ -6,4 +6,8 @@
     <color name="white">#ffffff</color>
     <color name="splash_background">@color/primary</color>
     <color name="splash_icon_tint">@color/white</color>
+    <color name="info_drawer_background">@color/primary</color>
+    <color name="info_drawer_icon_tint">@color/white</color>
+    <color name="info_drawer_text">@color/material_on_surface_emphasis_medium</color>
+    <color name="info_drawer_btn_bg_color_pressed">@color/primary_dark</color>
 </resources>

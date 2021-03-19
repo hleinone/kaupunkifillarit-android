@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer"
     android:layout_width="match_parent"
@@ -25,7 +26,7 @@
         android:layout_width="@dimen/info_drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="end"
-        android:background="@color/primary"
+        android:background="@color/info_drawer_background"
         android:clickable="true"
         android:focusable="true">
 
@@ -37,6 +38,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/info_view_vertical_margin"
             android:src="@drawable/splash"
+            app:tint="@color/info_drawer_icon_tint"
             tools:ignore="ContentDescription" />
 
         <ImageButton
@@ -46,9 +48,10 @@
             android:layout_height="@dimen/fab_diameter"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:background="@drawable/button_background"
+            android:background="@drawable/info_drawer_btn_bg_selector"
             android:contentDescription="@string/close"
-            android:src="@drawable/ic_close" />
+            android:src="@drawable/ic_close"
+            app:tint="@color/info_drawer_icon_tint" />
 
         <FrameLayout
             android:id="@+id/share_wrapper"
@@ -64,9 +67,10 @@
                 android:layout_width="@dimen/fab_diameter"
                 android:layout_height="@dimen/fab_diameter"
                 android:layout_gravity="center_vertical"
-                android:background="@drawable/button_background"
+                android:background="@drawable/info_drawer_btn_bg_selector"
                 android:contentDescription="@string/share"
-                android:src="@drawable/ic_share" />
+                android:src="@drawable/ic_share"
+                app:tint="@color/info_drawer_icon_tint" />
 
         </FrameLayout>
 

@@ -6,7 +6,7 @@
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/primary</item>
         <item name="colorControlHighlight">@color/primary_dark</item>
-        <item name="colorOnSurface">@color/primary_dark</item>
+        <item name="colorOnSurface">@color/black</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Alert</item>
     </style>
 
@@ -15,7 +15,7 @@
     </style>
 
     <style name="SplashTheme" parent="Base.AppTheme">
-        <item name="android:windowBackground">@drawable/background_splash</item>
+        <item name="android:windowBackground">@drawable/splash_bg</item>
     </style>
 
     <style name="AppTheme.Dialog.Alert" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">

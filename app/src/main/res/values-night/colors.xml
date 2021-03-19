@@ -2,4 +2,7 @@
 <resources>
     <color name="splash_background">@color/black</color>
     <color name="splash_icon_tint">@color/primary</color>
+    <color name="info_drawer_background">@color/design_dark_default_color_background</color>
+    <color name="info_drawer_icon_tint">@color/primary_dark</color>
+    <color name="info_drawer_btn_bg_color_pressed">@color/black</color>
 </resources>

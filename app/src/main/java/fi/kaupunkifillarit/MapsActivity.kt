@@ -7,12 +7,14 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.BitmapFactory
+import android.graphics.ColorMatrixColorFilter
 import android.os.Build
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -144,6 +146,17 @@ class MapsActivity : AppCompatActivity() {
             googleMap.isIndoorEnabled = false
             googleMap.uiSettings.isMapToolbarEnabled = false
             googleMap.uiSettings.isZoomControlsEnabled = false
+
+            if (resources.configuration.uiMode.and(Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
+                val myLocationButton =
+                    mapFragment.requireView()
+                        .findViewWithTag<View>("GoogleMapMyLocationButton") as? ImageView
+                myLocationButton?.colorFilter = ColorMatrixColorFilter(NEGATIVE)
+                val compassButton =
+                    mapFragment.requireView()
+                        .findViewWithTag<View>("GoogleMapCompass") as? ImageView
+                compassButton?.background?.colorFilter = ColorMatrixColorFilter(NEGATIVE)
+            }
 
             googleMap.setOnMyLocationButtonClickListener {
                 app.sharedPreferences.edit().remove(LAST_MAP_LOCATION).apply()
@@ -317,5 +330,11 @@ class MapsActivity : AppCompatActivity() {
                 FINLAND.latitude, FINLAND.longitude, 5f, 0f, 0f
             )
         }
+        private val NEGATIVE = floatArrayOf(
+            -1.0f, 0f, 0f, 0f, 255f,
+            0f, -1.0f, 0f, 0f, 255f,
+            0f, 0f, -1.0f, 0f, 255f,
+            0f, 0f, 0f, 1.0f, 0f
+        )
     }
 }
