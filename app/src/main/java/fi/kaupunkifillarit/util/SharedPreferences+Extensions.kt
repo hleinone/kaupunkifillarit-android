@@ -14,4 +14,4 @@ fun <T : Any> SharedPreferences.Editor.putObject(
     key: String,
     serializer: KSerializer<T>,
     value: T
-) = putString(key, Json.encodeToString(serializer, value))
+): SharedPreferences.Editor = putString(key, Json.encodeToString(serializer, value))
