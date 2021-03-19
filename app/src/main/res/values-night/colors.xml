@@ -5,4 +5,6 @@
     <color name="info_drawer_background">@color/design_dark_default_color_background</color>
     <color name="info_drawer_icon_tint">@color/primary_dark</color>
     <color name="info_drawer_btn_bg_color_pressed">@color/black</color>
+    <color name="rack_marker_empty">#444444</color>
+    <color name="rack_marker_empty_text">#dddddd</color>
 </resources>
