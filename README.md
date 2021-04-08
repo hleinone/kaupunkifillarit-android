@@ -28,6 +28,7 @@ TODO
 * Translate to Swedish
 * Translate to English
 * Use AAB when uploading to Play Store
+* Dark theme
 
 License
 -------
